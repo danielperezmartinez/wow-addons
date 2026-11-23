@@ -1,4 +1,38 @@
-# Notas: API de Midnight / Forever (estado a 2026-11-22)
+# Notas: API de Midnight / Forever
+
+## ✅ Resultados de ProbeAuras en Forever (2026-11-23)
+
+Cliente `1.60.1` build `71037` (18-nov-2026), Interface `16001`, `WOW_PROJECT_ID = 18` (`WOW_PROJECT_CAMELOT`;
+existen también `WOW_PROJECT_MAINLINE = 1` y `WOW_PROJECT_CLASSIC = 2`). Paladín, mundo abierto, muñeco.
+
+- **TOC**: con base, `_Forever`, `_Camelot`, `_Mainline` y `_Standard` presentes, Forever carga **`_Camelot.toc`**.
+  Usar `_Camelot.toc` (o un único `.toc` con `## Interface: 16001`).
+- **Auras en combate: bloqueadas del todo** para addons. `C_UnitAuras.GetUnitAuras` y `GetAuraDataByIndex` dan
+  error `Auras cannot be accessed when secret while tainted by '<addon>'` (jugador y objetivo). No devuelven
+  secretos: no devuelven nada. `GetPlayerAuraBySpellID` / `GetUnitAuraBySpellID` dieron `nil` (sin error), pero
+  el hechizo consultado no tenía aura activa: sin concluir.
+- **Auras fuera de combate**: todo legible (nombre, spellId, icono, duración…), y todos los widgets las aceptan.
+- **Cooldowns en combate** (`C_Spell.GetSpellCooldown`): `startTime`, `duration`, `modRate`, `activeCategory`,
+  `timeUntilEndOfStartRecovery` son **secretos**; `isActive`, `isEnabled`, `isOnGCD` **no** lo son.
+  `C_Spell.GetSpellTexture` y nombres: no secretos. `GetSpellCharges`: nil (ningún hechizo con cargas).
+  El GCD `61304` no existe en Forever.
+- **Widgets con secretos (en combate)**: `FontString:SetText(secreto)` ✅, `StatusBar:SetMinMaxValues` ✅,
+  `Cooldown:SetCooldownFromDurationObject(C_Spell.GetSpellCooldownDuration(id))` ✅,
+  `Region:SetShown(booleano no secreto)` ✅. **`Cooldown:SetCooldown(secreto)` ❌** ("Secret values are only
+  allowed during untainted execution").
+- **Operaciones Lua sobre un secreto**: concatenar ✅, `string.format("%s")` ✅, `tostring` ✅, `if v` ✅;
+  comparar (`==`, `<`) ❌, aritmética ❌, usarlo como clave ❌.
+- **Gestor de cooldowns**: `C_CooldownViewer.GetCooldownViewerCategorySet` y `GetCooldownViewerCooldownInfo`
+  **no son secretos en combate** (cooldownID, spellID, overrideSpellID, linkedSpellIDs, selfAura, hasAura,
+  category…). Categorías: Essential 0, Utility 1, TrackedBuff 2, TrackedBar 3, GroupBuff 4, SpecAgnostic* 5–6,
+  EquipSlot* 7–8 (HiddenActive −1 / HiddenPassive −2 no se aceptan). Los marcos `EssentialCooldownViewer`,
+  `UtilityCooldownViewer`, `BuffIconCooldownViewer`, `BuffBarCooldownViewer` existen, pero salieron ocultos
+  (`IsShown = false`) y los métodos de sus ítems no devolvieron nada: sin concluir.
+- `C_RestrictedActions` no existe; `C_Secrets.GetSpellAuraSecrecy/GetSpellCooldownSecrecy` sí.
+
+---
+
+Lo que sigue es la recopilación previa (2026-11-22); donde choque con lo de arriba, manda lo de arriba.
 
 Recopilado de Warcraft Wiki y guías de la comunidad **antes** de probar en el juego. Lo marcado ❓ hay que
 confirmarlo con ProbeAuras; las fuentes discrepan.
