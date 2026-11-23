@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "runtime.version": "Lua 5.1",
+  "runtime.builtin": {
+    "io": "disable",
+    "os": "disable",
+    "package": "disable",
+    "debug": "disable"
+  },
+  "workspace.checkThirdParty": false,
+  "workspace.ignoreDir": [".claude", "results"],
+  "diagnostics.globals": [
+    "ProbeAurasDB",
+    "SLASH_PROBEAURAS1"
+  ],
+  "diagnostics.disable": ["lowercase-global"]
+}

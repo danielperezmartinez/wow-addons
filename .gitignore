@@ -1,0 +1,12 @@
+# Ruta local a Interface/AddOns (distinta en cada máquina)
+.wow-addons-path
+
+# SavedVariables copiados del juego para analizar (pueden llevar nombres de cuenta/personaje)
+results/
+
+# Herramientas
+.claude/
+.luarc.local.json
+*.bak
+*.tmp
+.DS_Store

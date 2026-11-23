@@ -1,0 +1,9 @@
+## Interface: 16001, 120105, 120107
+## Title: ProbeAuras (test)
+## Notes: Throwaway probe: secret values in auras / cooldowns. /probe
+## Author: wow-addons
+## Version: 0.1.0
+## SavedVariables: ProbeAurasDB
+## X-Probe-Toc: Forever
+
+Probe.lua
