@@ -20,10 +20,15 @@ Addons:
 
 ## Enlazar con el juego
 
-El juego está en otro PC con **Windows**; aquí (Linux) se escribe y se comprueba la sintaxis. En el PC de
-juego hay un clon del repo y los addons se enlazan desde él.
+El juego está en otro PC con **Windows** sin herramientas de desarrollo; aquí (Linux) se escribe y se
+comprueba la sintaxis.
 
-**Windows** (junctions, no hace falta administrador):
+**Instalar en el PC de juego (solo navegador):** cada push a `main` que toque `addons/` ejecuta
+`.github/workflows/package.yml`, que publica un `.zip` por addon en la release
+[`latest`](https://github.com/danielperezmartinez/wow-addons/releases/latest). Descárgalo y descomprímelo en
+`World of Warcraft\<carpeta>\Interface\AddOns`. También se puede lanzar a mano desde la pestaña Actions.
+
+**Windows con clon del repo** (opcional; junctions, no hace falta administrador):
 
 1. Opcional: crea `.wow-addons-path` en la raíz del clon con la ruta de `Interface\AddOns`, una por línea.
    Sin él se usan `C:\Program Files (x86)\World of Warcraft\_retail_` y `\_forever_` si existen.
