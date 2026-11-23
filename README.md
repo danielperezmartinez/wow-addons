@@ -12,6 +12,8 @@ scripts/pull-sv.sh   copia los SavedVariables de un addon a results/ para analiz
 docs/                notas de la API y guías de prueba
 ```
 
+Normas obligatorias (anti-baneo): [docs/normas.md](docs/normas.md).
+
 Addons:
 
 - `ProbeAuras` — sonda **desechable** para ver qué devuelven auras y cooldowns dentro y fuera de combate. Guía: [docs/prueba-probeauras.md](docs/prueba-probeauras.md).
