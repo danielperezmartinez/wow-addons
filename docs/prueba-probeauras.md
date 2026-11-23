@@ -5,7 +5,10 @@ widgets los aceptan. Tarda unos 10 minutos.
 
 ## Preparación (una vez)
 
-1. Pon la ruta de `Interface/AddOns` en `.wow-addons-path` y ejecuta `scripts/link.sh ProbeAuras`.
+1. En el PC de Windows, en el clon del repo: `powershell -ExecutionPolicy Bypass -File scripts\link.ps1 ProbeAuras`
+   (si WoW no está en `C:\Program Files (x86)\World of Warcraft`, pon antes la ruta de `Interface\AddOns` en
+   `.wow-addons-path`). Apunta qué carpetas lista: `_retail_`, `_forever_` o ambas.
+   Sin clon: copia `addons\ProbeAuras` tal cual dentro de `Interface\AddOns`.
 2. En la pantalla de personajes → **AddOns**: marca *ProbeAuras (test)*. Si sale "desactualizado", marca
    *Cargar addons desactualizados* y apúntalo (significa que el Interface no es ninguno de 16001/120105/120107).
 3. Activa el **Gestor de cooldowns** de Blizzard (Opciones → Gameplay/Interfaz → *Cooldown Manager*) y deja
@@ -29,8 +32,9 @@ widgets los aceptan. Tarda unos 10 minutos.
 
 ## Devolver los resultados
 
-- `scripts/pull-sv.sh` copia `ProbeAuras.lua` a `results/` (no se versiona). Dime que está y lo analizo.
-  Si el script no lo encuentra, el fichero está en `WTF/Account/<CUENTA>/SavedVariables/ProbeAuras.lua`.
+- `scripts\pull-sv.ps1` copia `ProbeAuras.lua` a `results\` (no se versiona). Pásalo a este PC y déjalo en
+  `results/` del repo (o pégame su contenido). Si el script no lo encuentra, el fichero está en
+  `World of Warcraft\<_retail_ o _forever_>\WTF\Account\<CUENTA>\SavedVariables\ProbeAuras.lua`.
 - Además, en una frase: qué se veía en el recuadro dentro de combate y qué no.
 
 ## Qué mide

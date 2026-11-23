@@ -18,11 +18,18 @@ Addons:
 
 ## Enlazar con el juego
 
-1. Crea `.wow-addons-path` en la raíz (no se versiona) con la ruta de `Interface/AddOns`, una por línea
-   (puedes poner la de `_retail_` y la de `_forever_` si existen ambas).
-2. `scripts/link.sh` (enlaza todos), `scripts/link.sh status`, `scripts/link.sh unlink ProbeAuras`.
+El juego está en otro PC con **Windows**; aquí (Linux) se escribe y se comprueba la sintaxis. En el PC de
+juego hay un clon del repo y los addons se enlazan desde él.
 
-Wine/Proton sigue los symlinks de Linux sin problema. Ejecuta los scripts desde el checkout principal.
+**Windows** (junctions, no hace falta administrador):
+
+1. Opcional: crea `.wow-addons-path` en la raíz del clon con la ruta de `Interface\AddOns`, una por línea.
+   Sin él se usan `C:\Program Files (x86)\World of Warcraft\_retail_` y `\_forever_` si existen.
+2. `powershell -ExecutionPolicy Bypass -File scripts\link.ps1` (enlaza todos); `... link.ps1 status`;
+   `... link.ps1 unlink ProbeAuras`. Resultados: `scripts\pull-sv.ps1`.
+
+**Linux/Wine** (si algún día se juega aquí): igual con `scripts/link.sh` y `scripts/pull-sv.sh` (symlinks;
+Wine los sigue). `.wow-addons-path` es obligatorio. Ejecútalos desde el checkout principal.
 
 ## .toc
 
