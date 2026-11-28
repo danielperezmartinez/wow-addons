@@ -94,7 +94,15 @@ a métodos de las barras y usa post-ganchos seguros. Es solo aspecto.
 - Lista de comprobación de [[normas]]: repasada (2026-11-28). Solo API del
   juego, no lee secretos, no automatiza nada, sin trabajo por fotograma, código
   público.
-- Pendiente: CI tras el push y prueba en el juego.
+- CI del commit `d6fef31`: Verificar, Fugas y Publicar en verde; `latest` trae
+  `PlayerClassColor.zip` (2026-11-28).
+- Prueba en el juego del usuario, fase 1 (2026-11-28): `/pcc` encontró las dos
+  barras (`PlayerFrame_GetHealthBar`, `PlayerFrame_GetManaBar`) con el estilo
+  aplicado y los cinco ganchos instalados. Vida lisa con color de clase; se
+  mantiene en combate y tras `/reload`, sin errores. Vehículo sin probar (no
+  tiene montura de pasajeros). El usuario notó que "parte del marco ha
+  desaparecido": por aclarar. Valoración: "se ve más limpio, pero aún falta que
+  se vea como un recuadro de banda".
 
 ## Resultado
 

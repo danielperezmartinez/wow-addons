@@ -41,6 +41,10 @@ existen también `WOW_PROJECT_MAINLINE = 1` y `WOW_PROJECT_CLASSIC = 2`). Palad�
 - Cliente en **español (esES)**: los nombres de hechizos y auras llegan en español; identificar siempre por ID.
 - **Carpeta de instalación**: `World of Warcraft\_forever_\` con su propio `Interface\AddOns` y `WTF`
   (confirmado por el usuario el 2026-11-28).
+- **Marco del jugador** (PlayerClassColor, 2026-11-28): existen `PlayerFrame_GetHealthBar`, `PlayerFrame_GetManaBar`,
+  `PlayerFrame_ToPlayerArt`, `PlayerFrame_UpdateArt` y `UnitFrameManaBar_UpdateType`. Cambiar textura y color de esas
+  barras (`SetStatusBarTexture`/`SetStatusBarColor`) con post-ganchos `hooksecurefunc` funciona también en combate,
+  sin errores de *taint*. `UnitClass("player")` y `C_ClassColor` se leen sin problema.
 - `C_RestrictedActions` no existe; `C_Secrets.GetSpellAuraSecrecy/GetSpellCooldownSecrecy` sí (sin probar).
 
 ---
