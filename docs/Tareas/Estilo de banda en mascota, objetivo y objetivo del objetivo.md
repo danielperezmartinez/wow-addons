@@ -1,8 +1,8 @@
 ---
 Nombre: Estilo de banda en mascota, objetivo y objetivo del objetivo
-Estado: Planificando
-Resumen: Llevar el aspecto de recuadro de banda de PlayerClassColor a los marcos de Blizzard de la mascota, el objetivo y el objetivo del objetivo. Pendiente de la comprobación en el Modo edición, de las decisiones de color y de saber si la clase y la reacción del objetivo son secretas en combate en Forever.
-Decisiones:
+Estado: En curso
+Resumen: Llevar el aspecto de recuadro de banda de PlayerClassColor a los marcos de Blizzard de la mascota, el objetivo y el objetivo del objetivo. El juego no lo cubre (comprobado). Diseño aprobado el 2026-11-28: addon renombrado a RaidStyleFrames 0.4.0, implementado y pendiente de prueba en el juego.
+Decisiones: 2026-11-28. Renombrar PlayerClassColor a RaidStyleFrames. Mascota en verde. Objetivo y objetivo del objetivo: clase si es jugador, reacción si no, gris si está reservado por otro; si esos datos son secretos, el color de selección oficial pasado tal cual a la barra y, si la barra no lo acepta, verde. El usuario acepta quedarse solo con el recuadro si no hay color.
 Bloqueada: []
 Fecha de creación: 2026-11-28T00:00:00+01:00
 Última modificación: 2026-11-28T00:00:00+01:00
@@ -18,14 +18,14 @@ objetivo (`TargetFrame`) y del objetivo del objetivo (`TargetFrameToT`).
 
 ## ¿Lo cubre el juego?
 
-Por confirmar en el juego; según internet, no.
+**No.**
 
 - Internet (2026-11-28): no hay opción nativa de colores de clase para el
   objetivo; hay una sugerencia pendiente en el foro de Blizzard. Lo hacen addons
   de terceros (MUF, MidnightSimpleUnitFrames, Bright UnitFrames) con modos de
   color por clase, reacción o gradiente.
-- Pendiente: que el usuario mire en el **Modo edición** los ajustes de los
-  marcos de objetivo y de mascota.
+- El usuario (2026-11-28): el Modo edición no tiene opciones de color en esos
+  marcos y buscar "color" en Opciones no da nada para ellos.
 
 ## Viabilidad (borrador)
 
@@ -50,6 +50,37 @@ Por confirmar en el juego; según internet, no.
   Blizzard y los rellena Blizzard: el addon solo cambia textura, color y
   colocación.
 
+## Diseño (aprobado el 2026-11-28)
+
+`addons/PlayerClassColor` pasa a `addons/RaidStyleFrames` (0.4.0). La fórmula
+del jugador se generaliza en una definición por marco (`skins`): barras,
+nombre, recuadro de referencia, adornos, destello y brillo, con alternativas de
+nombre para cada pieza.
+
+| Marco | Recuadro de referencia | Color de vida | Franja de poder |
+| --- | --- | --- | --- |
+| Jugador | `PlayerFrame.Selection` | Clase | 12 |
+| Mascota | `PetFrame.Selection` o el marco | Verde fijo | 6 |
+| Objetivo | `TargetFrame.Selection` o el marco | Clase / reacción / gris | 10 |
+| Objetivo del objetivo | El propio marco | Clase / reacción / gris | 5 |
+
+- Color del objetivo: `UnitIsTapDenied`, `UnitIsPlayer` + `UnitClass`,
+  `UnitReaction` (con `FACTION_BAR_COLORS`), **solo si no son secretos**. Si lo
+  son, `UnitSelectionColor` se pasa tal cual a `SetStatusBarColor` dentro de
+  `pcall`; si la barra no acepta el secreto, verde. Nunca se compara un
+  secreto.
+- Poder: color estándar si el tipo no es secreto; si lo es, la barra se deja
+  como está.
+- Se recolorea en combate al cambiar de objetivo (`PLAYER_TARGET_CHANGED`,
+  `UNIT_TARGET`, `UNIT_FACTION`). La colocación, solo fuera de combate.
+- Ganchos nuevos: `UnitFrame_Update` (por marco), `TargetFrame:CheckClassification`.
+- No se tocan: auras, barra de lanzamiento, nivel, dragón de élite o raro
+  (`BossPortraitFrameTexture`), icono de banda, amenaza numérica. Sí se hace
+  transparente el fondo de color del nombre del objetivo (`ReputationColor`),
+  porque la reacción ya se ve en la barra.
+- `/rsf` (y `/pcc`): dos líneas por marco con el origen del color y el estado
+  de cada pieza.
+
 ## Prueba propuesta
 
 La primera versión del addon trae el diagnóstico en `/pcc`: para cada unidad,
@@ -63,6 +94,13 @@ deciden el color del objetivo.
 - CI en verde y lista de comprobación de [[normas]] repasada.
 
 ## Verificación
+
+- `luac5.1 -p addons/*/*.lua`: OK (2026-11-28).
+- Simulación local con un entorno falso de la API (fuera del repo): con todo
+  legible y con todo secreto en combate, sin errores de Lua; la colocación se
+  aplaza y se aplica al salir de combate.
+- Lista de comprobación de [[normas]]: repasada (2026-11-28).
+- Pendiente: CI y prueba en el juego.
 
 ## Resultado
 

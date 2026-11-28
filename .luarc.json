@@ -12,7 +12,8 @@
   "diagnostics.globals": [
     "ProbeAurasDB",
     "SLASH_PROBEAURAS1",
-    "SLASH_PLAYERCLASSCOLOR1"
+    "SLASH_RAIDSTYLEFRAMES1",
+    "SLASH_RAIDSTYLEFRAMES2"
   ],
   "diagnostics.disable": ["lowercase-global"]
 }

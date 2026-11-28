@@ -1,0 +1,7 @@
+## Interface: 16001, 120105, 120107
+## Title: RaidStyleFrames
+## Notes: Raid-style look for Blizzard's player, pet, target and target-of-target frames. Visual only. /rsf
+## Author: wow-addons
+## Version: 0.4.0
+
+RaidStyleFrames.lua

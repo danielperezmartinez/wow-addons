@@ -181,7 +181,7 @@ Addon `PlayerClassColor` 0.3.2 publicado en `latest`. El marco del jugador de
 Blizzard se ve como un recuadro de banda: vida con color de clase y textura
 plana a todo el recuadro del Modo edición, franja de poder debajo, fondo y borde
 propios, nombre en blanco, retrato y adornos transparentes, brillo de estado
-oculto y destello de amenaza con forma de borde de aggro de banda. La
+oculto y destello de amenaza con forma de borde de aggro de banda. El 2026-11-28 el addon se renombró a `RaidStyleFrames`. La
 continuación para otros marcos está en
 [[Estilo de banda en mascota, objetivo y objetivo del objetivo]].
 
