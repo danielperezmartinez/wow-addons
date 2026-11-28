@@ -127,6 +127,18 @@ deciden el color del objetivo.
   texturas y barras visibles de un marco, sin medir nada, para identificar el
   retrato real y las barras de la mascota. Simulación local con todo secreto
   en combate, sin errores.
+- CI del commit `5c14b7e` (0.4.2): Verificar, Fugas y Publicar en verde.
+- Prueba en el juego del usuario, 0.4.2 (2026-11-28, fuera de combate):
+  `/rsf scan target` falló al preguntar si se veía el escudo de la barra de
+  lanzamiento (visibilidad secreta), pero antes listó
+  `TargetFrameContainer.Portrait` como visible: Blizzard le devuelve la
+  opacidad. `/rsf scan pet`: las barras visibles son `PetFrameHealthBar` y
+  `PetFrameManaBar`, ya con el tamaño nuevo (108x29 y 108x6), pero sin
+  máscaras encontradas: el relleno sigue recortado a la forma antigua.
+- 0.4.3: máscaras encontradas preguntando a la textura de relleno de cada barra
+  (`GetNumMaskTextures`/`GetMaskTexture`), además de las de nombre conocido;
+  adornos vigilados con post-ganchos sobre `SetAlpha`/`Show`/`SetShown`; el
+  escaneo salta las piezas con visibilidad secreta y lo indica.
 
 ## Resultado
 

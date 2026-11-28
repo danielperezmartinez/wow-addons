@@ -54,6 +54,14 @@ existen también `WOW_PROJECT_MAINLINE = 1` y `WOW_PROJECT_CLASSIC = 2`). Palad�
   combate: "attempt to perform arithmetic on a secret number value", RaidStyleFrames 0.4.1, 2026-11-28). Medirlo es
   además una vía para deducir el valor: **no se mide** ([[normas]], apartado 3). El tamaño del marco de la barra sí
   se puede leer, pero los diagnósticos lo protegen con `issecretvalue`.
+- **La visibilidad de una pieza puede ser secreta**: `IsVisible()` del escudo de "no interrumpible" de la barra de
+  lanzamiento del objetivo (`TargetFrameSpellBar.BorderShield`) devuelve un booleano secreto (2026-11-28). Al
+  recorrer marcos, esas piezas se saltan sin evaluarlas.
+- `TargetFrameContainer.Portrait` es el retrato visible del objetivo, y Blizzard le **restablece la opacidad**:
+  un `SetAlpha(0)` puntual no basta, hay que volver a aplicarlo con un post-gancho sobre `SetAlpha`/`Show`.
+- Las barras de la mascota son `PetFrameHealthBar`/`PetFrameManaBar` (= `PetFrame.healthbar`/`.manabar`), sin
+  máscara con nombre conocido. Las máscaras del relleno se encuentran con
+  `GetStatusBarTexture():GetNumMaskTextures()`/`GetMaskTexture(i)`.
 - `C_RestrictedActions` no existe; `C_Secrets.GetSpellAuraSecrecy/GetSpellCooldownSecrecy` sí (sin probar).
 
 ---

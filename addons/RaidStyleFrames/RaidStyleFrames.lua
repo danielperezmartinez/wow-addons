@@ -227,6 +227,28 @@ local function masksOf(health, power)
     first(path(power, "ManaBarMask"), path(power, "Mask"))
 end
 
+-- Every mask that clips a bar's fill: the named ones plus whatever the fill texture
+-- reports, so masks with unknown names are found too. Returns { {mask, bar}, ... }.
+local function maskPairs(health, power)
+  local list, seen = {}, {}
+  local function add(mask, bar)
+    if mask and bar and not seen[mask] then
+      seen[mask] = true
+      list[#list + 1] = { mask, bar }
+    end
+  end
+  local healthMask, powerMask = masksOf(health, power)
+  add(healthMask, health)
+  add(powerMask, power)
+  for _, bar in ipairs({ health, power }) do
+    local fill = bar and bar:GetStatusBarTexture()
+    if fill and fill.GetNumMaskTextures then
+      for i = 1, fill:GetNumMaskTextures() do add(fill:GetMaskTexture(i), bar) end
+    end
+  end
+  return list
+end
+
 local function compact(list)
   local out = {}
   for i = 1, 8 do if list[i] then out[#out + 1] = list[i] end end
@@ -324,8 +346,7 @@ local function applyLayout(skin)
   local health, power, bounds = skin.health(), skin.power(), skin.bounds()
   if not health or not bounds then r.state.layout = "not found"; return end
   local container = healthContainer(health)
-  local healthMask, powerMask = masksOf(health, power)
-  local masks = compact({ healthMask, powerMask })
+  local masks = maskPairs(health, power)
   local flash = skin.flash()
 
   if inVehicle(skin) then
@@ -333,7 +354,7 @@ local function applyLayout(skin)
     if r.layoutApplied then
       applying = true
       restorePoints(container); restorePoints(health); restorePoints(power)
-      for _, mask in ipairs(masks) do restoreTex(mask) end
+      for _, pair in ipairs(masks) do restoreTex(pair[1]) end
       restoreTex(flash)
       applying = false
       r.layoutApplied = false
@@ -360,9 +381,9 @@ local function applyLayout(skin)
   end
   -- Rectangular masks: bars, heal prediction and absorbs are no longer clipped to the
   -- old frame shape.
-  for _, pair in ipairs({ { healthMask, health }, { powerMask, power } }) do
+  for _, pair in ipairs(masks) do
     local mask, bar = pair[1], pair[2]
-    if mask and bar then
+    do
       saveTex(mask)
       mask:SetTexture(WHITE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
       mask:ClearAllPoints()
@@ -383,17 +404,26 @@ local function applyLayout(skin)
     .. ", " .. (container and "container" or "bar") .. ", " .. #masks .. " masks, flash " .. (flash and "ok" or "-")
 end
 
+-- Decorations are made transparent, and again whenever Blizzard restores their alpha
+-- (it does for the target portrait).
+local function applyArt(skin)
+  local alpha = inVehicle(skin) and 1 or 0
+  applying = true
+  for _, region in ipairs(compact(skin.decorations())) do region:SetAlpha(alpha) end
+  applying = false
+end
+
 local function applyBox(skin)
   local r = rt[skin]
   local frame, health, power = skin.frame(), skin.health(), skin.power()
   local regions = compact(skin.decorations())
   if inVehicle(skin) then
-    for _, region in ipairs(regions) do region:SetAlpha(1) end
+    applyArt(skin)
     if r.box then r.box:Hide() end
     r.state.box = "vehicle"
     return
   end
-  for _, region in ipairs(regions) do region:SetAlpha(0) end
+  applyArt(skin)
   if not frame or not health then r.state.box = "not found"; return end
   if not r.box then
     r.box = CreateFrame("Frame", nil, frame, "BackdropTemplate")
@@ -496,6 +526,9 @@ local function installHooks()
     hookMethods(power, { "SetPoint" }, layout)
     hookMethods(skin.flash(), { "SetAtlas", "SetTexture", "SetPoint" }, layout)
     hookMethods(skin.glow(), { "Show", "SetShown" }, function() applyGlow(skin) end)
+    for _, region in ipairs(compact(skin.decorations())) do
+      hookMethods(region, { "SetAlpha", "Show", "SetShown" }, function() applyArt(skin) end)
+    end
     hookMethods(skin.name(), { "SetPoint", "SetTextColor" }, function() applyName(skin) end)
   end
   local player = skinOf("player")
@@ -579,7 +612,7 @@ local MAX_SCAN_LINES = 30
 local function shortName(region, root)
   local name = debugName(region)
   local rootName = debugName(root)
-  if name:sub(1, #rootName) == rootName then name = name:sub(#rootName + 2) end
+  if name:sub(1, #rootName + 1) == rootName .. "." then name = name:sub(#rootName + 2) end
   return name ~= "" and name or "?"
 end
 
@@ -587,7 +620,7 @@ local function scan(skin)
   local root = skin.frame()
   if not root then p("scan " .. skin.key .. ": frame not found"); return end
   local own = rt[skin].box
-  local lines, seen = 0, {}
+  local lines, seen, secretSkipped = 0, {}, 0
   local function describe(region)
     local kind = region:GetObjectType()
     local extra = ""
@@ -600,14 +633,20 @@ local function scan(skin)
   local function visit(frame, depth)
     if not frame or seen[frame] or frame == own or depth > 8 or lines >= MAX_SCAN_LINES then return end
     seen[frame] = true
-    if frame:GetObjectType() == "StatusBar" and frame:IsVisible() then
+    -- Visibility can itself be secret (e.g. the cast bar's "not interruptible" shield):
+    -- such pieces are skipped, never tested.
+    local visible = frame:IsVisible()
+    if isSecret(visible) then secretSkipped = secretSkipped + 1 end
+    if frame:GetObjectType() == "StatusBar" and not isSecret(visible) and visible then
       lines = lines + 1
       p("  " .. describe(frame))
     end
     for _, region in ipairs({ frame:GetRegions() }) do
       if lines >= MAX_SCAN_LINES then break end
-      local alpha = region:GetAlpha()
-      if region:GetObjectType() == "Texture" and region:IsVisible() and (isSecret(alpha) or alpha > 0) then
+      local alpha, shown = region:GetAlpha(), region:IsVisible()
+      if isSecret(alpha) or isSecret(shown) then
+        secretSkipped = secretSkipped + 1
+      elseif region:GetObjectType() == "Texture" and shown and alpha > 0 then
         lines = lines + 1
         p("  " .. describe(region))
       end
@@ -616,6 +655,7 @@ local function scan(skin)
   end
   p("scan " .. skin.key .. " (visible pieces, max " .. MAX_SCAN_LINES .. "):")
   visit(root, 0)
+  if secretSkipped > 0 then p("  (" .. secretSkipped .. " pieces with secret visibility skipped)") end
 end
 
 SLASH_RAIDSTYLEFRAMES1 = "/rsf"
