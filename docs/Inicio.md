@@ -19,6 +19,7 @@ Este es el nexo de navegación de la memoria del proyecto. Las reglas están en
 - [[normas|Normas anti-baneo]]
 - [[notas-api-midnight|Notas de la API de Midnight / Forever]]
 - [[prueba-probeauras|Guía de la sonda ProbeAuras]]
+- [[Entorno y flujo de trabajo]]
 
 ## Próximos sistemas
 

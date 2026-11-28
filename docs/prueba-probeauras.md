@@ -1,5 +1,10 @@
 # Prueba en el juego: ProbeAuras
 
+> Primera ronda hecha el 2026-11-23 ([[Sonda ProbeAuras en Forever (primera ronda)]]). Para la siguiente, aplicar
+> las lecciones de [[Entorno y flujo de trabajo#Cómo escribir guías de prueba en el juego]]: el recuadro **no es
+> en vivo** (solo cambia con cada `snap`), `/probe snap dentro` se escribe **mientras se pega al muñeco**, y el
+> gestor de cooldowns debe estar **activado**. Carpeta de Forever: `_forever_`.
+
 Objetivo: saber qué datos de auras y cooldowns llegan como *secret values* en combate en Forever, y qué
 widgets los aceptan. Tarda unos 10 minutos.
 

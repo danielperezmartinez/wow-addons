@@ -28,7 +28,20 @@ existen también `WOW_PROJECT_MAINLINE = 1` y `WOW_PROJECT_CLASSIC = 2`). Palad�
   EquipSlot* 7–8 (HiddenActive −1 / HiddenPassive −2 no se aceptan). Los marcos `EssentialCooldownViewer`,
   `UtilityCooldownViewer`, `BuffIconCooldownViewer`, `BuffBarCooldownViewer` existen, pero salieron ocultos
   (`IsShown = false`) y los métodos de sus ítems no devolvieron nada: sin concluir.
-- `C_RestrictedActions` no existe; `C_Secrets.GetSpellAuraSecrecy/GetSpellCooldownSecrecy` sí.
+  Nombres completos de 5–8: SpecAgnosticEssential 5, SpecAgnosticTracked 6, EquipSlotEssential 7,
+  EquipSlotTracked 8; −1 y −2 dan error de uso. Los marcos salieron ocultos porque el gestor estaba
+  **desactivado** en esa prueba; repetir con él activo.
+- **Objetos de duración** (`C_UnitAuras.GetAuraDuration`, `C_Spell.GetSpellCooldownDuration`): userdata con
+  `GetRemainingDuration`, `GetTotalDuration`, `GetElapsedDuration` e `IsZero`. En combate,
+  `GetRemainingDuration` devuelve un número **secreto** (sirve para pasarlo a widgets, no para decidir nada).
+- `C_UnitAuras.GetAuraApplicationDisplayCount` devuelve `""` si el aura no tiene acumulaciones.
+- **ID de hechizo**: conviven rangos de estilo clásico (Aura de devoción `10290`, Sentencia `20271`, Bendición de
+  protección `1022`) con ID nuevos (Sellos `1323522`, `1324513`…). En el gestor, `linkedSpellIDs` lista todos
+  los rangos: al buscar un hechizo, comparar contra toda la lista.
+- Cliente en **español (esES)**: los nombres de hechizos y auras llegan en español; identificar siempre por ID.
+- **Carpeta de instalación**: `World of Warcraft\_forever_\` con su propio `Interface\AddOns` y `WTF`
+  (confirmado por el usuario el 2026-11-28).
+- `C_RestrictedActions` no existe; `C_Secrets.GetSpellAuraSecrecy/GetSpellCooldownSecrecy` sí (sin probar).
 
 ---
 
@@ -45,8 +58,7 @@ confirmarlo con ProbeAuras; las fuentes discrepan.
   Forever). Si hay `_Standard` y `_Mainline`, Midnight usa `_Standard`. ❓ prioridad entre `_Forever`,
   `_Camelot` y `_Mainline` en Forever → lo mide `loadedToc`.
 - `WOW_PROJECT_ID`: una sonda comunitaria vio `18` (`WOW_PROJECT_CAMELOT`); builds de beta daban `1`. ❓
-- Carpeta: las guías dicen `World of Warcraft\_forever_\` con su propio `Interface\AddOns` y `WTF`. ❓ El
-  usuario indica que comparte `Interface/AddOns` con retail; lo resolvemos al ver la instalación.
+- Carpeta: `World of Warcraft\_forever_\` con su propio `Interface\AddOns` y `WTF` (✅ confirmado, ver arriba).
 - Hereda la API y las restricciones de combate de Midnight (secret values).
 
 ## Secret values (resumen)

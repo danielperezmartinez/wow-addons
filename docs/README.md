@@ -50,7 +50,9 @@ archivo no puede leerse, el agente debe detenerse e informar al usuario.
   representa una unidad de conocimiento realmente distinta.
 - Notas de referencia fuera de los sistemas: [[normas]] (normas anti-baneo, fuente
   única), [[notas-api-midnight]] (lo que se sabe de la API de Forever, probado y
-  recopilado) y [[prueba-probeauras]] (guía de la sonda ProbeAuras).
+  recopilado), [[prueba-probeauras]] (guía de la sonda ProbeAuras) y
+  [[Entorno y flujo de trabajo]] (los dos PC, ida y vuelta de addons y
+  SavedVariables, herramientas y escollos).
 
 ## Sistemas disponibles
 
@@ -196,6 +198,8 @@ toque `addons/`, y antes de proponer un addon nuevo se evalúa contra ellas.
   versiona: lleva el nombre de la cuenta).
 - No se instala software del sistema sin aprobación. Para JavaScript, pnpm
   (nunca npm/npx).
+- Detalle, porqués y escollos conocidos (también los de los worktrees para
+  agentes y cómo escribir guías de prueba): [[Entorno y flujo de trabajo]].
 
 ### 3. Stack y API
 
@@ -214,7 +218,8 @@ toque `addons/`, y antes de proponer un addon nuevo se evalúa contra ellas.
 ### 4. Publicación y despliegue
 
 - Sin pull requests ni versiones: **push directo a `main`, solo con el OK
-  explícito del usuario** en la sesión. Las ramas de trabajo y los worktrees se
+  explícito del usuario** en la sesión, y **cada push se pide aparte** (un OK
+  anterior no vale para el siguiente). Las ramas de trabajo y los worktrees se
   integran en `main` en local (avance directo) antes del push.
 - `main` exige los checks `Verificar` y `Fugas`; el push directo pasa porque el
   usuario es administrador (`enforce_admins=false`). Prohibido force-push y borrar
@@ -227,14 +232,16 @@ toque `addons/`, y antes de proponer un addon nuevo se evalúa contra ellas.
   `addons/`, que `gh release view latest` apunta a ese commit y trae los `.zip`.
   Ante un fallo, avisar al usuario con un reporte y detenerse: no reintentar ni
   relanzar por iniciativa propia.
-- Los commits usan el correo privado de GitHub (`…@users.noreply.github.com`).
+- Los commits usan el correo privado de GitHub (`…@users.noreply.github.com`),
+  nunca el correo personal del usuario (ya hubo que reescribir commits para
+  quitarlo). Comprobar `git config user.email` antes del primer commit en un clon.
 
 ### 5. Idioma
 
 - Código, identificadores, comentarios de código y textos del `.toc`: inglés.
 - Mensajes de commit: inglés.
 - Documentación (esta bóveda, `README.md` raíz) y comunicación con el usuario:
-  español.
+  español. Informes al usuario breves y en viñetas.
 
 ## Propósito del proyecto
 

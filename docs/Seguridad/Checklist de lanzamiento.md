@@ -20,15 +20,17 @@ GitHub.
 
 - [x] Visibilidad del repo: **público** (2026-11-28), coherente con las reglas de
       "Repositorio y publicación" y con la política de Blizzard (código visible).
-- [ ] Secret scanning activado.
-- [ ] Push protection activado (bloquea en el servidor los pushes con secretos
-      conocidos).
-- [ ] Private vulnerability reporting activado.
-- [ ] Protección de `main` con `Verificar` y `Fugas` como obligatorios,
-      `enforce_admins=false`, sin force-push ni borrado.
-- [ ] Hooks activos en cada clon de trabajo (`git config core.hooksPath`
-      apunta a `.githooks`) y gitleaks instalado; fichero de patrones
-      personales creado fuera del repo.
+- [x] Secret scanning activado (2026-11-28).
+- [x] Push protection activado (bloquea en el servidor los pushes con secretos
+      conocidos) (2026-11-28).
+- [ ] Private vulnerability reporting activado. **Desactivado** a 2026-11-28;
+      lo activa el usuario en Settings → Security si quiere.
+- [x] Protección de `main` con `Verificar` y `Fugas` como obligatorios
+      (`strict=false`), `enforce_admins=false`, sin force-push ni borrado
+      (aplicada el 2026-11-28).
+- [x] Hooks activos en el clon del PC de desarrollo (`core.hooksPath` =
+      `.githooks`), gitleaks instalado y fichero de patrones personales fuera
+      del repo (2026-11-28). Repetir en cualquier clon nuevo.
 - [ ] Alertas de Dependabot activadas (no hay dependencias, pero cubre las
       acciones si algún día se usan).
 
@@ -36,4 +38,4 @@ GitHub.
 
 | Fecha | Quién | Notas |
 | --- | --- | --- |
-| 2026-11-28 | agente | Montaje inicial. Revisión del historial con gitleaks: sin fugas (un falso positivo de ejemplo, `/home/yo/`, añadido a las stopwords). |
+| 2026-11-28 | agente | Montaje inicial. Revisión del historial con gitleaks: sin fugas (un falso positivo de ejemplo, `/home/yo/`, añadido a las stopwords). Protección de `main` aplicada; secret scanning y push protection ya activos; falta private vulnerability reporting y Dependabot. |
