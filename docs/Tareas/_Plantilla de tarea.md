@@ -14,6 +14,12 @@ Fecha de creación: <AAAA-MM-DDTHH:mm:ss+ZZ:ZZ>
 
 <Qué se persigue y por qué.>
 
+## ¿Lo cubre el juego?
+
+<Solo para addons nuevos (regla fundamental 6 del README): qué opciones nativas
+se comprobaron, cómo y con qué resultado. Si el juego ya lo cubre, la tarea se
+cierra sin addon.>
+
 ## Criterios de finalización
 
 - <Condición verificable 1.>

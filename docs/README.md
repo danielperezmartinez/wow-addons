@@ -71,6 +71,8 @@ fichero descriptivo y sin numeración; la plantilla es
   deba aparecer en el trabajo habitual → `Archivada`.
 - Antes de crear una tarea, buscar en TODAS (incluidas `Hecha` y `Archivada`)
   para no duplicar.
+- Una tarea de addon nuevo rellena "¿Lo cubre el juego?" antes de diseñar
+  (regla fundamental 6).
 - Una tarea que necesite una prueba en el juego no pasa a `Hecha` hasta que el
   usuario la ha hecho y su resultado está anotado (en la tarea y, si es
   conocimiento de la API, en [[notas-api-midnight]]).
@@ -242,6 +244,20 @@ toque `addons/`, y antes de proponer un addon nuevo se evalúa contra ellas.
 - Mensajes de commit: inglés.
 - Documentación (esta bóveda, `README.md` raíz) y comunicación con el usuario:
   español. Informes al usuario breves y en viñetas.
+
+### 6. Primero, lo que ya hace el juego
+
+- Antes de proponer o diseñar un addon, se comprueba si el propio juego ya lo
+  cubre: opciones de Interfaz, Modo edición, perfiles de marcos de banda, gestor
+  de cooldowns, variables de consola (CVar) y funciones nativas de Forever.
+- Si no se sabe con seguridad, se le da al usuario una comprobación en el juego
+  (dónde mirar, paso a paso, con los nombres de los menús en español) **antes**
+  de diseñar nada.
+- Solo se plantea un addon para lo que el juego no cubre, o cubre de forma
+  insuficiente según el usuario. La tarea deja escrito qué se comprobó en
+  "¿Lo cubre el juego?".
+- Motivo: en las primeras pruebas todo lo que el usuario necesitaba ya lo daba
+  el juego (CDM frente a [[Tareas/CDMPlus|CDMPlus]]).
 
 ## Propósito del proyecto
 
