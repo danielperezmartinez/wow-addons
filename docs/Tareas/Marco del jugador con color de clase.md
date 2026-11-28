@@ -1,8 +1,8 @@
 ---
 Nombre: Marco del jugador con color de clase
 Estado: Planificando
-Resumen: El usuario quiere que su propio marco de personaje tenga el mismo estilo que los marcos de grupo de banda (color de clase). Primero se aclara qué quiere exactamente y se comprueba si el juego lo cubre (regla 6); si no, se evalúa un addon.
-Decisiones:
+Resumen: Colorear con el color de clase, como en los marcos de banda, la barra de vida del marco del jugador de Blizzard (arriba a la izquierda). El juego no lo cubre (comprobado). Diseño propuesto, el addon PlayerClassColor, pendiente de aprobación.
+Decisiones: Alcance elegido el 2026-11-28 (opción a): solo la barra de vida del marco del jugador normal, sin marco propio. Ni el Modo edición ni las Opciones lo cubren.
 Bloqueada: []
 Fecha de creación: 2026-11-28T00:00:00+01:00
 Última modificación: 2026-11-28T00:00:00+01:00
@@ -12,55 +12,57 @@ Fecha de creación: 2026-11-28T00:00:00+01:00
 
 ## Objetivo
 
-Que el marco del personaje propio se vea con el mismo estilo que los marcos de
-grupo con estilo de banda, ya configurados en
-[[Colores de clase y maná en marcos de grupo]]. Falta concretar qué es "el mismo
-estilo": solo el color de clase en la barra de vida del marco del jugador
-normal, o un marco con aspecto de banda también en solitario.
+Que la barra de vida del marco del personaje propio (el de Blizzard, arriba a la
+izquierda) se vea como en los marcos de grupo con estilo de banda, ya
+configurados en [[Colores de clase y maná en marcos de grupo]]: con el color de
+la clase. El usuario lo eligió el 2026-11-28 (opción a). No quiere un marco
+propio.
 
 ## ¿Lo cubre el juego?
 
-Sin comprobar. Lo que se sabe:
+**No.** El usuario lo comprobó en Forever el 2026-11-28:
 
-- En grupo, los marcos de grupo con estilo de banda ya incluyen al propio
-  jugador, con los mismos colores.
-- No se conoce una opción nativa de color de clase para el marco del jugador
-  normal: hay que mirarlo en Forever.
+1. `Esc` → **Modo edición** → **marco del jugador**: no hay ningún ajuste de
+   color.
+2. `Esc` → **Opciones** → **Juego** → **Interfaz**: no hay colores de clase para
+   el marco del jugador.
 
-Comprobación pedida al usuario:
+En grupo, los marcos de grupo con estilo de banda ya incluyen al jugador con su
+color, pero el usuario quiere el marco normal.
 
-1. `Esc` → **Modo edición** → clic en el **marco del jugador** → mirar qué
-   ajustes ofrece (tamaño, estilo, color…).
-2. `Esc` → **Opciones** → **Juego** → **Interfaz** (apartado del marco del
-   jugador o de nombres/marcos): buscar algo como "colores de clase".
-3. En **Modo edición** → marcos de grupo: ver si hay una opción para mostrarlos
-   también en solitario o para mostrar al jugador.
+## Diseño propuesto (pendiente de aprobación)
 
-Resultado: _pendiente_.
+Addon `PlayerClassColor`, pequeño, sin SavedVariables ni opciones:
 
-## Si el juego no lo cubre (borrador, sin aprobar)
+1. Fuera de combate (al entrar al mundo), lee la clase propia con
+   `UnitClass("player")` y su color con `C_ClassColor.GetClassColor`.
+2. Busca la barra de vida del marco del jugador (`PlayerFrame_GetHealthBar()` si
+   existe; si no, la ruta dentro de `PlayerFrame`).
+3. Le pone la textura de relleno de los marcos de banda
+   (`Interface\RaidFrame\Raid-Bar-Hp-Fill`) y el color de clase con
+   `SetStatusBarColor`. La textura de Blizzard ya es verde, y teñirla daría
+   colores sucios: por eso se cambia.
+4. Si Blizzard lo restablece (vehículo, cambio de especialización, recarga del
+   marco), se vuelve a aplicar con eventos o con `hooksecurefunc`. Nada de
+   `OnUpdate`. En vehículo se deja el aspecto de Blizzard.
+5. `/pcc` escribe en el chat si encontró la barra y si aplicó el color. Sirve
+   para la primera prueba.
 
-Hay dos caminos, y ambos tienen dudas que se resolverían con una sonda antes de
-diseñar:
+**Viabilidad.** No lee ningún dato secreto: la clase propia no lo es y el color
+es una constante. Solo llama a métodos de la barra (`SetStatusBarTexture`,
+`SetStatusBarColor`) y no escribe campos en los marcos de Blizzard, que es lo
+que los ensucia (*taint*). Encaja en [[normas]]: solo cambia el aspecto. Duda
+que resuelve la primera prueba: que en combate no salgan errores de Blizzard
+(con `/console scriptErrors 1`) y que el color no se pierda.
 
-- **Colorear la barra de vida del marco de Blizzard**: es el cambio mínimo. El
-  riesgo es el *taint*: en Midnight, tocar marcos de Blizzard que manejan
-  *secret values* puede romper su propio código en combate. Habría que probar
-  que solo cambiar el color de la barra no causa errores.
-- **Marco propio con estilo de banda**: no toca a Blizzard. La vida y el poder
-  serían secretos en combate, pero `StatusBar` los acepta (probado con
-  `SetMinMaxValues`; `SetValue` según la wiki, sin probar). La clase propia
-  (`UnitClass("player")`) se puede leer fuera de combate y guardarse. Si es un
-  marco de unidad clicable, necesita una plantilla segura (`SecureUnitButtonTemplate`)
-  y no se puede cambiar en combate.
-
-En los dos casos se revisa contra [[normas]]: solo se muestra información, y no
-se rodea ninguna restricción.
+Descartado: un marco propio con estilo de banda. Es más trabajo, y el usuario
+quiere conservar el marco de Blizzard.
 
 ## Criterios de finalización
 
-- El marco del jugador se ve como quiere el usuario, con opciones nativas o con
-  un addon aprobado y publicado.
+- La barra de vida del marco del jugador sale con el color de clase, también en
+  combate, sin errores de Lua.
+- CI en verde y lista de comprobación de [[normas]] repasada.
 
 ## Verificación
 
