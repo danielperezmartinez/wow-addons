@@ -1,8 +1,8 @@
 ---
 Nombre: Marco del jugador con color de clase
 Estado: En curso
-Resumen: Addon PlayerClassColor. Cambia solo el aspecto del marco del jugador de Blizzard: barra de vida con textura plana de banda y color de clase, y barra de poder con textura plana y su color. Fase 1 probada en el juego. Fase 2 (aspecto de recuadro de banda: sin retrato ni marco dorado, fondo y borde propios, nombre dentro de la barra) implementada y pendiente de prueba.
-Decisiones: 2026-11-28. El juego no lo cubre (usuario + internet). Se descartaron el marco de banda en solitario, el cuadro propio y el marco nuevo: el usuario quiere conservar el marco de Blizzard con toda su información y cambiar solo el aspecto. Primera fase, puntos 1 y 2: vida con color de clase y poder con textura plana. Fase 2 aprobada el mismo día: retrato y marco dorado transparentes, fondo oscuro y borde fino propios, nombre dentro de la barra de vida, sin cambiar tamaño ni posición de las barras. Opcional después: proporción de las barras y texto de vida.
+Resumen: Addon PlayerClassColor. Cambia solo el aspecto del marco del jugador de Blizzard: barra de vida con textura plana de banda y color de clase, y barra de poder con textura plana y su color. Fase 1 probada en el juego. Fase 2 probada (el fondo tapaba la vida). Fase 3 (barras que llenan todo el marco, nombre blanco, sin brillo de estado, fondo corregido) implementada y pendiente de prueba.
+Decisiones: 2026-11-28. El juego no lo cubre (usuario + internet). Se descartaron el marco de banda en solitario, el cuadro propio y el marco nuevo: el usuario quiere conservar el marco de Blizzard con toda su información y cambiar solo el aspecto. Primera fase, puntos 1 y 2: vida con color de clase y poder con textura plana. Fase 2 aprobada el mismo día: retrato y marco dorado transparentes, fondo oscuro y borde fino propios, nombre dentro de la barra de vida, sin cambiar tamaño ni posición de las barras. Fase 3 aprobada el mismo día: barras al tamaño completo del marco (vida arriba, franja de poder de 12 px abajo), máscaras rectangulares, brillo de estado transparente, nombre en blanco con sombra (en color de clase no se leería sobre la barra) y fondo por debajo de todo. Cambios de colocación solo fuera de combate.
 Bloqueada: []
 Fecha de creación: 2026-11-28T00:00:00+01:00
 Última modificación: 2026-11-28T00:00:00+01:00
@@ -79,6 +79,23 @@ a métodos de las barras y usa post-ganchos seguros. Es solo aspecto.
   (gancho sobre su `SetPoint` para que Blizzard no lo devuelva).
 - No se cambia el tamaño ni la posición de las barras (posible fase 3).
 - `/pcc` añade una línea `box: …; name: …`.
+
+## Fase 3: barras a todo el marco (aprobada el 2026-11-28)
+
+- El contenedor de la barra de vida (con sus textos y la sanación entrante) se
+  ancla al rectángulo de `PlayerFrame` con 4 px de margen, dejando abajo una
+  franja de 12 px para la barra de poder.
+- Las máscaras de recorte (`HealthBarMask`, `ManaBarMask`) pasan a una textura
+  blanca rectangular del tamaño de cada barra, para que ni las barras ni la
+  sanación entrante o los escudos se recorten con la silueta antigua.
+- Las posiciones y máscaras originales se guardan en tablas propias del addon y
+  se restauran una vez al entrar en un vehículo.
+- Solo fuera de combate: si Blizzard recoloca algo en combate, se corrige en
+  `PLAYER_REGEN_ENABLED`.
+- Correcciones de la fase 2: el fondo propio pasa a ser hijo de `PlayerFrame`
+  con su mismo nivel (por debajo de las barras); `StatusTexture` (brillo de
+  combate o descanso) transparente; nombre en blanco con sombra.
+- `/pcc` añade una línea `layout: …`.
 
 ## Guía de prueba en el juego
 
