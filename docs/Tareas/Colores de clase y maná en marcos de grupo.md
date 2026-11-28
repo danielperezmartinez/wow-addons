@@ -1,8 +1,8 @@
 ---
 Nombre: Colores de clase y maná en marcos de grupo
-Estado: Planificando
-Resumen: El usuario usa marcos de grupo con estilo de banda y salen todos verdes (sin color de clase) y sin la barra de maná de los compañeros. Primero se comprueba si las opciones nativas de marcos de banda lo cubren (regla 6); solo si no, se diseña un addon.
-Decisiones: Primera tarea con la regla fundamental 6 (primero, lo que ya hace el juego). Sin diseño de addon hasta tener el resultado de la comprobación en el juego.
+Estado: Hecha
+Resumen: El usuario usa marcos de grupo con estilo de banda y salen todos verdes (sin color de clase) y sin la barra de maná de los compañeros. Resuelto con las opciones nativas de marcos de banda, sin addon (regla 6).
+Decisiones: Primera tarea con la regla fundamental 6 (primero, lo que ya hace el juego). El usuario confirmó el 2026-11-28 que las opciones nativas lo cubren: no se hace addon.
 Bloqueada: []
 Fecha de creación: 2026-11-28T00:00:00+01:00
 Última modificación: 2026-11-28T00:00:00+01:00
@@ -22,7 +22,7 @@ colores de clase" y "Mostrar barras de poder", y el verde uniforme es
 justamente lo que se ve con la primera desactivada. Falta confirmar que existen
 en Forever y dónde están.
 
-Comprobación pedida al usuario (en curso):
+Comprobación pedida al usuario:
 
 1. `Esc` → **Opciones** → **Juego** → **Interfaz** → apartado **Marcos de
    banda** (o **Marcos de grupo**). Buscar y activar **Mostrar colores de
@@ -38,7 +38,8 @@ Comprobación pedida al usuario (en curso):
    `/dump GetCVar("raidFramesDisplayClassColor"), GetCVar("raidFramesDisplayPowerBars")`
    (solo lee; no cambia nada).
 
-Resultado: _pendiente_.
+Resultado: **sí lo cubre**. El usuario lo activó en Forever y confirmó el
+2026-11-28 que funciona (no indicó en qué menú estaba).
 
 ## Si el juego no lo cubre
 
@@ -55,4 +56,9 @@ Blizzard no debe ensuciar (*taint*) sus marcos protegidos.
 
 ## Verificación
 
+Confirmado por el usuario en el juego el 2026-11-28. No hay cambios en `addons/`.
+
 ## Resultado
+
+Sin addon: basta con las opciones nativas de los marcos de banda. El marco del
+jugador sigue en [[Marco del jugador con color de clase]].
