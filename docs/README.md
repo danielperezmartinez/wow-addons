@@ -250,6 +250,11 @@ toque `addons/`, y antes de proponer un addon nuevo se evalúa contra ellas.
 - Antes de proponer o diseñar un addon, se comprueba si el propio juego ya lo
   cubre: opciones de Interfaz, Modo edición, perfiles de marcos de banda, gestor
   de cooldowns, variables de consola (CVar) y funciones nativas de Forever.
+- La comprobación incluye **buscar en internet** (notas de parche, foros de
+  Blizzard, Warcraft Wiki) si el juego tiene esa opción, y qué addons
+  publicados lo resuelven y cómo: su técnica sirve de referencia para el diseño
+  y dice si es viable en Forever. La prueba del usuario en el juego no sustituye
+  a esta búsqueda.
 - Si no se sabe con seguridad, se le da al usuario una comprobación en el juego
   (dónde mirar, paso a paso, con los nombres de los menús en español) **antes**
   de diseñar nada.

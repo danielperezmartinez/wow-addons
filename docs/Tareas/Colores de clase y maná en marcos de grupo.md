@@ -61,4 +61,4 @@ Confirmado por el usuario en el juego el 2026-11-28. No hay cambios en `addons/`
 ## Resultado
 
 Sin addon: basta con las opciones nativas de los marcos de banda. El marco del
-jugador sigue en [[Marco del jugador con color de clase]].
+jugador sigue en [[Marco del jugador con color de clase|Marco del jugador con estilo de banda]].
