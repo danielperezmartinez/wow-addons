@@ -11,7 +11,8 @@
   "workspace.ignoreDir": [".claude", "results"],
   "diagnostics.globals": [
     "ProbeAurasDB",
-    "SLASH_PROBEAURAS1"
+    "SLASH_PROBEAURAS1",
+    "SLASH_PLAYERCLASSCOLOR1"
   ],
   "diagnostics.disable": ["lowercase-global"]
 }

@@ -1,108 +1,108 @@
 ---
-Nombre: Marco del jugador con estilo de banda
-Estado: Planificando
-Resumen: El usuario quiere ver su propio marco como un rectángulo de banda (color de clase, barra de maná debajo, perjuicios…), también jugando solo. El juego no lo ofrece; varios addons publicados lo hacen mostrando el marco de grupo de Blizzard en solitario. Diseño propuesto (SoloRaidFrame) pendiente de aprobación.
-Decisiones: 2026-11-28: primero se eligió solo colorear la barra de vida (opción a); el usuario lo corrigió: quiere el rectángulo de banda completo con el comportamiento del juego. Se descarta un marco propio: las auras en combate no se pueden leer, así que solo el código de Blizzard puede mostrar los perjuicios.
+Nombre: Marco del jugador con color de clase
+Estado: En curso
+Resumen: Addon PlayerClassColor. Cambia solo el aspecto del marco del jugador de Blizzard: barra de vida con textura plana de banda y color de clase, y barra de poder con textura plana y su color. Diseño aprobado el 2026-11-28; implementado y pendiente de prueba en el juego.
+Decisiones: 2026-11-28. El juego no lo cubre (usuario + internet). Se descartaron el marco de banda en solitario, el cuadro propio y el marco nuevo: el usuario quiere conservar el marco de Blizzard con toda su información y cambiar solo el aspecto. Primera fase, puntos 1 y 2: vida con color de clase y poder con textura plana. Más adelante, opcional: texto de vida más claro y quitar adornos.
 Bloqueada: []
 Fecha de creación: 2026-11-28T00:00:00+01:00
 Última modificación: 2026-11-28T00:00:00+01:00
 ---
 
-# Marco del jugador con estilo de banda
-
-(El nombre del fichero conserva el título inicial, "con color de clase", para no
-romper enlaces.)
+# Marco del jugador con color de clase
 
 ## Objetivo
 
-Ver el marco del personaje propio igual que los marcos de grupo con estilo de
-banda, ya configurados en [[Colores de clase y maná en marcos de grupo]]: un
-rectángulo con el color de clase, la barra de maná debajo, perjuicios, etc., con
-el mismo comportamiento que el juego. Tiene que verse también **jugando solo**.
+El usuario interpreta mal a simple vista la vida en el marco del jugador de
+Blizzard (arriba a la izquierda). Quiere que se lea como en los marcos de grupo
+con estilo de banda ([[Colores de clase y maná en marcos de grupo]]) sin
+perder el marco de Blizzard ni nada de lo que muestra (recursos de clase,
+vehículo, combate…): **solo un cambio visual**.
 
 ## ¿Lo cubre el juego?
 
 **No.**
 
-- El usuario lo comprobó en Forever el 2026-11-28. Ni el Modo edición ni las
-  Opciones tienen colores de clase para el marco del jugador, ni una opción para
-  mostrar los marcos de grupo jugando solo.
-- Búsqueda en internet (2026-11-28): no hay una opción nativa para ver los
-  marcos de grupo con estilo de banda en solitario. Un hilo del foro de
-  Blizzard de la beta de Midnight lo confirma, y hay sugerencias pendientes en
-  los foros para colorear el marco del jugador.
-- Sí hay addons publicados que lo hacen, con versión para Forever:
-  BetterRaidFrames, K Solo Raid Frames y la parte SoloFrame de RaidFrameSettings.
-  Todos **reutilizan el marco de grupo de Blizzard** (`CompactPartyFrame`), que
-  ya incluye al jugador, y lo hacen visible fuera de grupo:
-  - RaidFrameSettings: `CompactPartyFrame:SetShown(true)` fuera de combate y un
-    gancho sobre `UpdateVisibility`.
-  - BetterRaidFrames (el más cuidadoso):
-    `RegisterStateDriver(CompactPartyFrame, "visibility", "[group] ignore; show")`,
-    `hooksecurefunc` sobre `CompactPartyFrame_Generate` y `UpdateVisibility`,
-    sin tocar nada en combate, y comprueba `issecretvalue`.
+- Comprobado por el usuario en Forever el 2026-11-28: ni el Modo edición ni las
+  Opciones tienen colores de clase para el marco del jugador.
+- Búsqueda en internet (2026-11-28): no hay opción nativa; en los foros de
+  Blizzard hay sugerencias pendientes. Hay addons que lo hacen (ClassColorFrames,
+  HP Bar Class Color, Class Hue, HealthBarColor; Class Hue dice soportar
+  Forever).
 
-## Diseño propuesto (pendiente de aprobación)
+## Alternativas descartadas (2026-11-28)
 
-Addon `SoloRaidFrame`, pequeño, sin SavedVariables:
+- **Mostrar el marco de grupo de Blizzard en solitario**, la técnica de
+  BetterRaidFrames, K Solo Raid Frames y RaidFrameSettings
+  (`RegisterStateDriver(CompactPartyFrame, "visibility", "[group] ignore; show")`).
+  Daba el rectángulo de banda con perjuicios, pero obligaba a tener dos marcos
+  o a ocultar el del jugador, y en grupo el cuadro propio no se puede separar
+  del bloque: Blizzard lo recoloca, a veces en combate.
+- **Cuadro propio con la plantilla de los marcos de banda**: los perjuicios en
+  combate quizá no se vean, por el *taint* (ver [[notas-api-midnight]]). Además,
+  el usuario quiere el marco de Blizzard.
 
-1. Requisito: "Usar marcos de grupo estilo banda" activado (ya lo está).
-2. Fuera de combate, al entrar al mundo y al cambiar el grupo, registra el
-   controlador de visibilidad seguro de Blizzard sobre `CompactPartyFrame` con
-   `[group] ignore; show`. Jugando solo, el marco de grupo se muestra con un
-   único miembro, el jugador. En grupo, decide Blizzard como hasta ahora.
-3. Todo lo que se ve lo dibuja el código de Blizzard: color de clase, maná,
-   perjuicios, sanación entrante, rango… Funciona igual que en grupo, con las
-   mismas opciones que el usuario ya tiene activadas.
-4. Nada se toca en combate: si hay que aplicar algo durante el combate, se
-   aplaza a `PLAYER_REGEN_ENABLED`. Sin `OnUpdate`.
-5. La posición es la de los marcos de grupo en el Modo edición: el usuario los
-   coloca arriba a la izquierda.
+## Diseño (aprobado el 2026-11-28)
 
-**Viabilidad y normas.** No lee ningún dato: el addon solo decide cuándo se
-muestra un marco de Blizzard, con la API oficial para ello
-(`RegisterStateDriver`). Los perjuicios en combate los dibuja Blizzard, que sí
-puede leerlos; el addon no los toca. Encaja en [[normas]].
+Addon `PlayerClassColor` (`addons/PlayerClassColor/`), sin SavedVariables ni
+opciones:
 
-**Riesgos que resuelve la primera prueba:**
+1. Busca las barras de vida y de poder del marco del jugador
+   (`PlayerFrame_GetHealthBar` / `PlayerFrame_GetManaBar` o la ruta dentro de
+   `PlayerFrame`).
+2. Vida: textura `Interface\RaidFrame\Raid-Bar-Hp-Fill` con el color de clase
+   (`UnitClass("player")` + `C_ClassColor.GetClassColor`).
+3. Poder: textura `Interface\RaidFrame\Raid-Bar-Resource-Fill` con el color
+   estándar del tipo de poder (`UnitPowerType` + `PowerBarColor`). Si el tipo
+   de poder llegara secreto, no se toca.
+4. Se vuelve a aplicar cuando Blizzard restablece su arte: al entrar al mundo,
+   `UNIT_DISPLAYPOWER`, `UNIT_EXITED_VEHICLE`, y post-ganchos
+   (`hooksecurefunc`) sobre `SetStatusBarTexture`/`SetStatusBarColor` de las dos
+   barras, `PlayerFrame_ToPlayerArt`, `PlayerFrame_UpdateArt` y
+   `UnitFrameManaBar_UpdateType`. Sin `OnUpdate`. En vehículo se deja el arte de
+   Blizzard.
+5. `/pcc` escribe un diagnóstico: qué barras encontró, si aplicó el estilo y qué
+   ganchos instaló.
 
-- *Taint*: un addon conocido (AzeriteUI) tuvo un error de *secret values* en
-  `CompactUnitFrame_UpdateHealthColor` de los marcos de grupo. Hay que probar en
-  combate, con `/console scriptErrors 1`, que no salen errores.
-- Que en Forever funcione igual que en retail. BetterRaidFrames dice que
-  soporta Forever, pero no se ha probado aquí.
+Normas: no lee secretos ni escribe campos en los marcos de Blizzard. Solo llama
+a métodos de las barras y usa post-ganchos seguros. Es solo aspecto.
 
-**Abierto:** qué hacer con el marco del jugador de Blizzard. Se puede mantener
-(en él va también la barra de recursos de clase, como el Poder Sagrado) o
-moverlo o ocultarlo con el Modo edición. Lo decide el usuario después de ver la
-primera versión.
+## Guía de prueba en el juego
 
-**Alternativa sin código propio:** instalar BetterRaidFrames o K Solo Raid
-Frames. Hacen esto y más, pero son de terceros. Se le ofrece al usuario.
-
-**Descartado:**
-
-- Marco propio desde cero: los perjuicios en combate no se pueden leer desde un
-  addon ([[notas-api-midnight]]), así que no podría mostrarlos.
-- Solo colorear la barra de vida del marco del jugador: no es lo que quiere el
-  usuario.
+1. Descargar `PlayerClassColor.zip` de la release `latest` y descomprimirlo en
+   `World of Warcraft\_forever_\Interface\AddOns\` (debe quedar
+   `…\AddOns\PlayerClassColor\PlayerClassColor.toc`).
+2. Entrar al juego y escribir `/console scriptErrors 1` para ver los errores de
+   Lua.
+3. Mirar el marco del jugador: vida con el color de la clase y textura plana,
+   maná azul plano.
+4. Escribir `/pcc` y copiar las tres líneas que salen.
+5. **Mientras se pega a un muñeco** (no antes ni después): ver que el color se
+   mantiene al perder y ganar vida y que no sale ninguna ventana de error.
+6. Fuera de combate: `/reload` y comprobar que el estilo vuelve.
+7. Si es posible, subir y bajar de un vehículo o montura de varios pasajeros.
+8. Una frase sobre cómo se ve y si ayuda a leer la vida.
 
 ## Criterios de finalización
 
-- Jugando solo, el marco con estilo de banda del jugador se ve con color de
-  clase, maná y perjuicios, también en combate, sin errores de Lua.
-- En grupo, los marcos de grupo funcionan como antes.
+- Barra de vida con color de clase y barras planas, también en combate, sin
+  errores de Lua.
 - CI en verde y lista de comprobación de [[normas]] repasada.
 
 ## Verificación
+
+- `luac5.1 -p addons/*/*.lua`: OK en local (2026-11-28).
+- Lista de comprobación de [[normas]]: repasada (2026-11-28). Solo API del
+  juego, no lee secretos, no automatiza nada, sin trabajo por fotograma, código
+  público.
+- Pendiente: CI tras el push y prueba en el juego.
 
 ## Resultado
 
 ## Fuentes
 
 - https://us.forums.blizzard.com/en/wow/t/suggestion-class-colors-for-player-target-and-focus-frame/1402862
-- https://eu.forums.blizzard.com/en/wow/t/calling-healers-please-help-with-the-default-party-frames-and-test-it-in-the-game-yourself-in-healers-role-before-it-all-reaches-midnight-release/592434
+- https://www.curseforge.com/wow/addons/class-hue
+- https://www.curseforge.com/wow/addons/classcolorframes
 - https://github.com/casperstorm/BetterRaidFrames/blob/master/SoloFrame.lua
 - https://github.com/Slothpala/RaidFrameSettings/blob/master/RaidFrameSettings/Modules/SoloFrame.lua
-- https://www.curseforge.com/wow/addons/k-solo-raid-frames
 - https://www.curseforge.com/wow/addons/azeriteui-junnez-edition-wow12/files/7863518
