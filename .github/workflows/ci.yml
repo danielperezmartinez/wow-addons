@@ -1,0 +1,123 @@
+# CI del repo. Reglas en docs/README.md.
+# - Verificar: sintaxis Lua 5.1 de todos los addons.
+# - Fugas: gitleaks sobre todo el historial, los mensajes y el nombre de rama.
+# - Publicar: empaqueta cada addon de addons/ en <Addon>.zip y los publica en la
+#   release "latest", solo si Verificar y Fugas pasan y el push a main toca addons/
+#   (o si se lanza a mano). Descarga sin herramientas:
+#   https://github.com/<owner>/<repo>/releases/latest
+# Sin acciones de terceros: solo git, gh y curl, que ya vienen en el runner.
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verificar:
+    name: Verificar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el commit
+        run: |
+          git init -q src
+          git -C src fetch -q --depth 1 "https://github.com/${GITHUB_REPOSITORY}.git" "${GITHUB_SHA}"
+          git -C src checkout -q FETCH_HEAD
+      - name: Instalar Lua 5.1
+        run: sudo apt-get install -y -qq lua5.1 >/dev/null
+      - name: Sintaxis de los addons
+        run: |
+          cd src
+          shopt -s nullglob
+          files=(addons/*/*.lua)
+          [ ${#files[@]} -gt 0 ] || { echo "No hay ficheros Lua"; exit 0; }
+          luac5.1 -p "${files[@]}"
+          echo "OK: ${#files[@]} ficheros"
+
+  fugas:
+    name: Fugas
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_VERSION: "8.28.0"
+      RAMA: ${{ github.head_ref || github.ref_name }}
+      # El texto del PR va por variable de entorno, nunca interpolado en el script.
+      PR_TEXTO: ${{ github.event.pull_request.title }} ${{ github.event.pull_request.body }}
+    steps:
+      - name: Clonar con todo el historial
+        run: |
+          git clone -q "https://github.com/${GITHUB_REPOSITORY}.git" src
+          git -C src checkout -q "${GITHUB_SHA}"
+      - name: Instalar gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+      - name: gitleaks (historial, mensajes, rama y PR)
+        run: |
+          cd src
+          ../gitleaks git --redact --no-banner --config .gitleaks.toml
+          { git log --format=%B; printf '%s\n%s\n' "$RAMA" "$PR_TEXTO"; } | ../gitleaks stdin --redact --no-banner --config .gitleaks.toml
+
+  publicar:
+    name: Publicar
+    needs: [verificar, fugas]
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: publicar
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ANTES: ${{ github.event.before }}
+    steps:
+      - name: Descargar el commit
+        run: |
+          git clone -q "https://github.com/${GITHUB_REPOSITORY}.git" src
+          git -C src checkout -q "${GITHUB_SHA}"
+
+      - name: ¿Cambia algo en addons/?
+        id: cambios
+        run: |
+          cd src
+          # A mano, o si el diff no se puede calcular: se publica.
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] && git diff --quiet "$ANTES" HEAD -- addons .github/workflows/ci.yml 2>/dev/null; then
+            echo "publicar=false" >> "$GITHUB_OUTPUT"
+            echo "Sin cambios en addons/: no se publica."
+          else
+            echo "publicar=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Empaquetar addons
+        if: steps.cambios.outputs.publicar == 'true'
+        run: |
+          mkdir dist
+          cd src/addons
+          for d in */; do
+            name="${d%/}"
+            zip -qr "../../dist/${name}.zip" "${name}" -x '*.bak' '*.tmp'
+            echo "  ${name}.zip"
+          done
+          ls -l ../../dist
+
+      - name: Publicar la release "latest"
+        if: steps.cambios.outputs.publicar == 'true'
+        run: |
+          short="${GITHUB_SHA::7}"
+          notes="Commit ${short} ($(date -u +%Y-%m-%d\ %H:%M) UTC).
+
+          Instalar: descarga el .zip del addon y descomprímelo dentro de
+          World of Warcraft\\<_retail_ o _forever_>\\Interface\\AddOns
+          (sustituye la carpeta anterior si existe). Luego /reload en el juego."
+          gh release delete latest --cleanup-tag --yes 2>/dev/null || true
+          gh release create latest dist/*.zip --target "${GITHUB_SHA}" --latest \
+            --title "Addons (${short})" --notes "${notes}"

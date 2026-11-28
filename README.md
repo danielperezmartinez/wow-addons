@@ -9,7 +9,8 @@ Solo API del juego: nada de lectores de memoria ni automatización de entradas.
 addons/<Addon>/      un addon por carpeta (.toc + .lua), se enlaza tal cual en Interface/AddOns
 scripts/link.sh      crea/quita/comprueba los symlinks en Interface/AddOns
 scripts/pull-sv.sh   copia los SavedVariables de un addon a results/ para analizarlos
-docs/                notas de la API y guías de prueba
+docs/                bóveda de Obsidian: reglas, tareas, seguridad, notas de la API (empieza en docs/README.md)
+.githooks/           hooks de gitleaks (activar una vez por clon: git config core.hooksPath .githooks)
 ```
 
 Normas obligatorias (anti-baneo): [docs/normas.md](docs/normas.md).
@@ -24,7 +25,8 @@ El juego está en otro PC con **Windows** sin herramientas de desarrollo; aquí 
 comprueba la sintaxis.
 
 **Instalar en el PC de juego (solo navegador):** cada push a `main` que toque `addons/` ejecuta
-`.github/workflows/package.yml`, que publica un `.zip` por addon en la release
+`.github/workflows/ci.yml`, que, si pasan la sintaxis (`Verificar`) y la revisión de fugas (`Fugas`), publica un
+`.zip` por addon en la release
 [`latest`](https://github.com/danielperezmartinez/wow-addons/releases/latest). Descárgalo y descomprímelo en
 `World of Warcraft\<carpeta>\Interface\AddOns`. También se puede lanzar a mano desde la pestaña Actions.
 

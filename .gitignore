@@ -10,3 +10,13 @@ results/
 *.bak
 *.tmp
 .DS_Store
+
+# Secretos locales (no se usan, pero por si acaso)
+.env*
+!.env.example
+
+# Estado local de Obsidian (la configuración base sí se versiona)
+docs/.obsidian/workspace*.json
+docs/.obsidian/plugins/
+docs/.obsidian/themes/
+docs/.obsidian/graph.json

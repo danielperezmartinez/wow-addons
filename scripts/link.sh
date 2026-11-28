@@ -7,7 +7,7 @@
 #   1. Variable WOW_ADDONS_DIRS (varias separadas por ':')
 #   2. Fichero .wow-addons-path en la raíz del repo (una ruta por línea, # comenta; no se versiona)
 # Ejemplo de .wow-addons-path:
-#   /home/yo/Games/battlenet/drive_c/Program Files (x86)/World of Warcraft/_retail_/Interface/AddOns
+#   /home/<usuario>/Games/battlenet/drive_c/Program Files (x86)/World of Warcraft/_retail_/Interface/AddOns
 #
 # Ejecútalo desde el checkout principal (no desde un worktree): el enlace apunta a la
 # carpeta del repo en la que vive este script.
