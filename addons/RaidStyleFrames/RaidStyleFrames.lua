@@ -5,7 +5,8 @@
 --   * Portrait and frame art are made transparent (never removed); pulsing status glows
 --     are hidden; the addon draws its own dark background and thin border.
 --   * Blizzard's threat flash keeps its logic but takes the raid aggro-border shape.
---   * The unit name sits inside the health bar, in white.
+--   * The unit name sits inside the health bar, in white; the level indicator stays in
+--     place but is drawn above the bars.
 -- Health colours: player = class; pet = green; target / target of target = class for
 -- players, reaction for NPCs, grey if tapped by others. Those unit facts are only used
 -- when they are NOT secret. If they are, the official selection colour is handed to the
@@ -338,6 +339,62 @@ local function applyPower(skin)
   s.power = "ok"
 end
 
+-- Level indicator pieces (circle, number, skull...) found by name. Names only are read.
+local function levelPieces(skin)
+  local root, own = skin.frame(), rt[skin]
+  local found, seen = {}, {}
+  local function visit(frame, depth)
+    if not frame or seen[frame] or depth > 5 or frame == own.box or frame == own.overlay then return end
+    seen[frame] = true
+    for _, region in ipairs({ frame:GetRegions() }) do
+      local kind = region:GetObjectType()
+      if (kind == "Texture" or kind == "FontString") and debugName(region):find("Level", 1, true) then
+        found[#found + 1] = region
+      end
+    end
+    for _, child in ipairs({ frame:GetChildren() }) do visit(child, depth + 1) end
+  end
+  visit(root, 0)
+  return found
+end
+
+-- The level pieces sit below the enlarged bars. They are moved, in place, onto an own
+-- frame drawn above both bars (also when Blizzard hides the power bar). Out of combat
+-- only; Blizzard keeps updating them. Original parents are restored in a vehicle.
+local savedParents = {}
+
+local function raiseLevel(skin, health, power)
+  local r = rt[skin]
+  if not r.overlay then
+    r.overlay = CreateFrame("Frame", nil, skin.frame())
+    r.overlay:SetAllPoints(skin.frame())
+  end
+  local level = health:GetFrameLevel()
+  if power then level = math.max(level, power:GetFrameLevel()) end
+  r.overlay:SetFrameLevel(level + 2)
+  r.levelPieces = r.levelPieces or levelPieces(skin)
+  for _, piece in ipairs(r.levelPieces) do
+    if not savedParents[piece] then
+      local layer, sub = piece:GetDrawLayer()
+      savedParents[piece] = { piece:GetParent(), layer, sub }
+    end
+    piece:SetParent(r.overlay)
+    if piece:GetObjectType() == "FontString" then piece:SetDrawLayer("OVERLAY", 7)
+    else piece:SetDrawLayer("OVERLAY", 6) end
+  end
+  return #r.levelPieces
+end
+
+local function restoreLevel(skin)
+  for _, piece in ipairs(rt[skin].levelPieces or {}) do
+    local saved = savedParents[piece]
+    if saved then
+      piece:SetParent(saved[1])
+      if saved[2] then piece:SetDrawLayer(saved[2], saved[3]) end
+    end
+  end
+end
+
 -- Bars fill the frame's box: health on top, a thin power strip below. Out of combat only.
 local function applyLayout(skin)
   local r = rt[skin]
@@ -356,6 +413,7 @@ local function applyLayout(skin)
       restorePoints(container); restorePoints(health); restorePoints(power)
       for _, pair in ipairs(masks) do restoreTex(pair[1]) end
       restoreTex(flash)
+      restoreLevel(skin)
       applying = false
       r.layoutApplied = false
     end
@@ -398,10 +456,12 @@ local function applyLayout(skin)
     flash:SetPoint("TOPLEFT", health, "TOPLEFT", -1, 1)
     flash:SetPoint("BOTTOMRIGHT", power or health, "BOTTOMRIGHT", 1, -1)
   end
+  local levels = raiseLevel(skin, health, power)
   applying = false
   r.layoutApplied = true
   r.state.layout = (debugName(bounds):find("Selection", 1, true) and "edit box" or "frame")
     .. ", " .. (container and "container" or "bar") .. ", " .. #masks .. " masks, flash " .. (flash and "ok" or "-")
+    .. ", level " .. levels
 end
 
 -- Decorations are made transparent, and again whenever Blizzard restores their alpha

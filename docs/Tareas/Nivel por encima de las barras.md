@@ -1,8 +1,8 @@
 ---
 Nombre: Nivel por encima de las barras
-Estado: Pendiente
+Estado: En curso
 Resumen: En RaidStyleFrames el círculo del nivel (jugador y objetivo) queda por debajo de la barra de poder ampliada. Subirlo de capa o recolocarlo, sin tocar su lógica.
-Decisiones: Creada el 2026-11-28 a partir de las capturas del usuario; se hará en otra sesión.
+Decisiones: Creada el 2026-11-28 a partir de las capturas del usuario. El mismo día eligió la opción 1: mismo sitio, por encima de las barras (tapa un poco el maná). Implementado en RaidStyleFrames 0.4.5, pendiente de prueba.
 Bloqueada: []
 Fecha de creación: 2026-11-28T00:00:00+01:00
 Última modificación: 2026-11-28T00:00:00+01:00
@@ -32,11 +32,28 @@ barra de poder, en los marcos de
 2. Recolocarlos fuera del recuadro, o dentro de la barra de vida.
 3. Ocultarlos (el nivel deja de verse): solo si el usuario lo prefiere.
 
+## Diseño (0.4.5)
+
+- Las piezas del nivel se localizan por nombre (`Level` en el nombre de
+  depuración: círculo, número, calavera de nivel alto…), sin medir nada.
+- Fuera de combate se pasan, sin moverlas de sitio, a un marco propio del addon
+  hijo del marco de la unidad, con nivel de marco 2 por encima de la barra más
+  alta. Así siguen visibles aunque Blizzard oculte la barra de poder (monstruos
+  sin maná). Capa `OVERLAY`, el número por encima del círculo.
+- Blizzard sigue poniendo el número. En vehículo se devuelven a su padre y capa
+  originales.
+- `/rsf` añade `level N` a la línea `layout` (piezas encontradas).
+
 ## Criterios de finalización
 
 - Nivel visible y legible en jugador y objetivo, sin errores en combate.
 - CI en verde y lista de comprobación de [[normas]] repasada.
 
 ## Verificación
+
+- `luac5.1 -p addons/*/*.lua`: OK (2026-11-28). Simulación local sin errores,
+  también con secretos en combate (se aplaza).
+- Lista de comprobación de [[normas]]: repasada (2026-11-28).
+- Pendiente: CI y prueba en el juego.
 
 ## Resultado
