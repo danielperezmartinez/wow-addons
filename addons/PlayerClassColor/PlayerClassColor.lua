@@ -18,7 +18,10 @@ local HEALTH_TEXTURE = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill"
 local POWER_TEXTURE = "Interface\\RaidFrame\\Raid-Bar-Resource-Fill"
 local WHITE = "Interface\\Buttons\\WHITE8x8"
 
-local INSET = 4          -- gap between the player frame's edge and the box
+local INSET = 2          -- gap between the Edit Mode selection box and our box
+-- Raid frames' aggro highlight (CompactUnitFrame), used for Blizzard's threat flash.
+local HIGHLIGHT_TEXTURE = "Interface\\RaidFrame\\Raid-FrameHighlights"
+local AGGRO_COORDS = { 0.00781250, 0.55468750, 0.00781250, 0.27343750 }
 local POWER_HEIGHT = 12  -- height of the power strip under the health bar
 
 local function p(msg) print("|cff66ccffPlayerClassColor|r " .. tostring(msg)) end
@@ -82,6 +85,18 @@ end
 -- Decorative regions made transparent. Information (threat flash, icons, level, class
 -- resources) is deliberately left alone. The status glow only repeats the combat/rest
 -- icons and outlines the old frame shape.
+-- The rectangle the user sees in Edit Mode. PlayerFrame itself is larger than its art.
+local function getBounds()
+  if PlayerFrame and PlayerFrame.Selection then return PlayerFrame.Selection, "Edit Mode selection" end
+  return PlayerFrame, "PlayerFrame"
+end
+
+-- Blizzard's threat flash (red/orange when mobs attack you). Kept, but reshaped.
+local function getFlash()
+  local container = PlayerFrame and PlayerFrame.PlayerFrameContainer
+  return container and container.FrameFlash
+end
+
 local function decorations()
   local list = {}
   local container = PlayerFrame and PlayerFrame.PlayerFrameContainer
@@ -146,13 +161,17 @@ local function saveMask(mask)
   local atlas = mask.GetAtlas and mask:GetAtlas()
   local points = {}
   for i = 1, mask:GetNumPoints() do points[i] = { mask:GetPoint(i) } end
-  savedMasks[mask] = { atlas = atlas, texture = mask:GetTexture(), points = points }
+  savedMasks[mask] = {
+    atlas = atlas, texture = mask:GetTexture(), points = points,
+    coords = mask.GetTexCoord and { mask:GetTexCoord() } or nil,
+  }
 end
 
 local function restoreMask(mask)
   local saved = mask and savedMasks[mask]
   if not saved then return end
   if saved.atlas then mask:SetAtlas(saved.atlas) elseif saved.texture then mask:SetTexture(saved.texture) end
+  if not saved.atlas and saved.coords and mask.SetTexCoord then mask:SetTexCoord(unpack(saved.coords)) end
   mask:ClearAllPoints()
   for _, pt in ipairs(saved.points) do mask:SetPoint(unpack(pt)) end
 end
@@ -214,6 +233,7 @@ local function applyLayout()
       applying = true
       restorePoints(container); restorePoints(health); restorePoints(power)
       for _, mask in ipairs(masks) do restoreMask(mask) end
+      restoreMask(getFlash())
       applying = false
       layoutApplied = false
     end
@@ -224,11 +244,12 @@ local function applyLayout()
   applying = true
 
   savePoints(container); savePoints(health); savePoints(power)
+  local bounds, boundsName = getBounds()
   local bottom = INSET + (power and (POWER_HEIGHT + 1) or 0)
   local top = container or health
   top:ClearAllPoints()
-  top:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", INSET, -INSET)
-  top:SetPoint("BOTTOMRIGHT", PlayerFrame, "BOTTOMRIGHT", -INSET, bottom)
+  top:SetPoint("TOPLEFT", bounds, "TOPLEFT", INSET, -INSET)
+  top:SetPoint("BOTTOMRIGHT", bounds, "BOTTOMRIGHT", -INSET, bottom)
   if container then
     health:ClearAllPoints()
     health:SetAllPoints(container)
@@ -236,7 +257,7 @@ local function applyLayout()
   if power then
     power:ClearAllPoints()
     power:SetPoint("TOPLEFT", health, "BOTTOMLEFT", 0, -1)
-    power:SetPoint("BOTTOMRIGHT", PlayerFrame, "BOTTOMRIGHT", -INSET, INSET)
+    power:SetPoint("BOTTOMRIGHT", bounds, "BOTTOMRIGHT", -INSET, INSET)
   end
   -- Rectangular masks: the bars (and heal prediction / absorbs) are no longer clipped
   -- to the old frame shape.
@@ -248,9 +269,20 @@ local function applyLayout()
     mask:SetAllPoints(i == 1 and health or power)
     count = count + 1
   end
+  -- Threat flash: same show/hide and colour logic (Blizzard's), raid aggro-border shape.
+  local flash = getFlash()
+  if flash then
+    saveMask(flash)
+    flash:SetTexture(HIGHLIGHT_TEXTURE)
+    flash:SetTexCoord(unpack(AGGRO_COORDS))
+    flash:ClearAllPoints()
+    flash:SetPoint("TOPLEFT", health, "TOPLEFT", -1, 1)
+    flash:SetPoint("BOTTOMRIGHT", power or health, "BOTTOMRIGHT", 1, -1)
+  end
   applying = false
   layoutApplied = true
-  state.layout = "applied (" .. (container and "container" or "bar only") .. ", " .. count .. " masks)"
+  state.layout = "applied (" .. boundsName .. ", " .. (container and "container" or "bar only")
+    .. ", " .. count .. " masks, flash " .. (flash and "reshaped" or "not found") .. ")"
 end
 
 -- Own background + border, drawn below every Blizzard piece of the player frame.
@@ -333,6 +365,7 @@ local function installHooks()
   hookMethods(health, "healthLayout", { "SetPoint" }, applyLayout)
   hookMethods(getHealthContainer(health), "containerLayout", { "SetPoint" }, applyLayout)
   hookMethods(power, "powerLayout", { "SetPoint" }, applyLayout)
+  hookMethods(getFlash(), "flash", { "SetAtlas", "SetTexture", "SetPoint" }, applyLayout)
   hookMethods(getName(), "name", { "SetPoint", "SetTextColor" }, applyName)
   hookGlobal("PlayerFrame_ToPlayerArt", applyAll)
   hookGlobal("PlayerFrame_ToVehicleArt", applyAll)

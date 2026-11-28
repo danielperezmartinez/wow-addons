@@ -144,6 +144,20 @@ a métodos de las barras y usa post-ganchos seguros. Es solo aspecto.
   del marco (en el Modo edición se ve el límite completo); en combate el brillo
   rojo de estado (`StatusTexture`) dibuja la silueta del marco antiguo. El
   usuario pide que las barras ocupen todo el espacio del marco (fase 3).
+- CI del commit `315c7f7` (0.3.0): Verificar, Fugas y Publicar en verde;
+  `latest` actualizada (2026-11-28).
+- Prueba en el juego del usuario, fase 3 (2026-11-28): `/pcc` aplicó todo
+  (contenedor, 2 máscaras, 5 adornos, 11 ganchos). El color de clase ya se ve
+  (lavanda: brujo) y el nombre blanco se lee. Problemas: el recuadro **se sale**
+  del recuadro del Modo edición: `PlayerFrame` es más grande que su arte; y en
+  combate el destello de amenaza (`FrameFlash`, rojo porque el muñeco ataca)
+  sigue dibujando la silueta del retrato y el borde superior del marco antiguo.
+- Corrección 0.3.1: las barras se anclan a `PlayerFrame.Selection` (el
+  recuadro del Modo edición) con 2 px de margen, y el destello de amenaza
+  conserva su lógica de Blizzard (cuándo sale y de qué color) pero toma la forma
+  del borde de aggro de los marcos de banda
+  (`Interface\RaidFrame\Raid-FrameHighlights`, mismas coordenadas que
+  `CompactUnitFrame`) alrededor del recuadro.
 
 ## Resultado
 
