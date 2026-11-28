@@ -1,7 +1,7 @@
 ---
 Nombre: Estilo de banda en mascota, objetivo y objetivo del objetivo
-Estado: En curso
-Resumen: Llevar el aspecto de recuadro de banda de PlayerClassColor a los marcos de Blizzard de la mascota, el objetivo y el objetivo del objetivo. El juego no lo cubre (comprobado). Diseño aprobado el 2026-11-28: addon renombrado a RaidStyleFrames 0.4.0, implementado y pendiente de prueba en el juego.
+Estado: Hecha
+Resumen: Llevar el aspecto de recuadro de banda de PlayerClassColor a los marcos de Blizzard de la mascota, el objetivo y el objetivo del objetivo. El juego no lo cubre (comprobado). Hecha el 2026-11-28 con RaidStyleFrames 0.4.4: los cuatro marcos como recuadros de banda, colores de objetivo por clase o reacción, sin errores en combate. Sin confirmar: nombre del objetivo del objetivo (0.4.4), mazmorra y vehículo.
 Decisiones: 2026-11-28. Renombrar PlayerClassColor a RaidStyleFrames. Mascota en verde. Objetivo y objetivo del objetivo: clase si es jugador, reacción si no, gris si está reservado por otro; si esos datos son secretos, el color de selección oficial pasado tal cual a la barra y, si la barra no lo acepta, verde. El usuario acepta quedarse solo con el recuadro si no hay color.
 Bloqueada: []
 Fecha de creación: 2026-11-28T00:00:00+01:00
@@ -158,8 +158,25 @@ deciden el color del objetivo.
   muestra siempre en ese modo). El objetivo del objetivo no es un sistema del
   Modo edición: va pegado al marco del objetivo y solo se activa o desactiva
   desde los ajustes de este.
+- CI del commit `a8797e8` (0.4.4): Verificar, Fugas y Publicar en verde.
+- Prueba en el juego del usuario, 0.4.4 (2026-11-28): "ya está todo bien". La
+  captura es fuera de combate y no muestra el marco del objetivo del objetivo;
+  `/rsf` dice `tot: ... name ok`, no `moved onto bar`. Por tanto el arreglo del
+  nombre **no está confirmado**: se comprueba en
+  [[Estilo de banda en el marco de foco]], que también tiene objetivo del foco.
+- Lista de [[normas]] repasada en cada versión.
 
 ## Resultado
+
+`RaidStyleFrames` 0.4.4 publicado en `latest`. Jugador, mascota, objetivo y
+objetivo del objetivo se ven como recuadros de banda sobre los marcos de
+Blizzard: barras planas a todo el recuadro (Modo edición o marco), máscaras
+rectangulares, adornos transparentes y vigilados, brillo de estado oculto,
+destello de amenaza con forma de borde de aggro y nombre en blanco. Colores:
+clase (jugador y jugadores objetivo), reacción o gris (no jugadores), verde
+(mascota). Comandos `/rsf` y `/rsf scan <marco>` para diagnóstico.
+Continuaciones: [[Estilo de banda en el marco de foco]] y
+[[Estilo de banda en marcos de grupo y banda]].
 
 ## Fuentes
 
