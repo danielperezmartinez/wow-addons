@@ -1,7 +1,7 @@
 ---
 Nombre: Marco del jugador con color de clase
-Estado: En curso
-Resumen: Addon PlayerClassColor. Cambia solo el aspecto del marco del jugador de Blizzard: barra de vida con textura plana de banda y color de clase, y barra de poder con textura plana y su color. Fase 1 probada en el juego. Fase 2 probada (el fondo tapaba la vida). Fase 3 (barras que llenan todo el marco, nombre blanco, sin brillo de estado, fondo corregido) implementada y pendiente de prueba.
+Estado: Hecha
+Resumen: Addon PlayerClassColor. Cambia solo el aspecto del marco del jugador de Blizzard: barra de vida con textura plana de banda y color de clase, y barra de poder con textura plana y su color. Fase 1 probada en el juego. Hecha el 2026-11-28 con la versión 0.3.2, probada en el juego: recuadro de banda dentro del marco del Modo edición, sin errores en combate. Vehículo sin probar.
 Decisiones: 2026-11-28. El juego no lo cubre (usuario + internet). Se descartaron el marco de banda en solitario, el cuadro propio y el marco nuevo: el usuario quiere conservar el marco de Blizzard con toda su información y cambiar solo el aspecto. Primera fase, puntos 1 y 2: vida con color de clase y poder con textura plana. Fase 2 aprobada el mismo día: retrato y marco dorado transparentes, fondo oscuro y borde fino propios, nombre dentro de la barra de vida, sin cambiar tamaño ni posición de las barras. Fase 3 aprobada el mismo día: barras al tamaño completo del marco (vida arriba, franja de poder de 12 px abajo), máscaras rectangulares, brillo de estado transparente, nombre en blanco con sombra (en color de clase no se leería sobre la barra) y fondo por debajo de todo. Cambios de colocación solo fuera de combate.
 Bloqueada: []
 Fecha de creación: 2026-11-28T00:00:00+01:00
@@ -169,8 +169,21 @@ a métodos de las barras y usa post-ganchos seguros. Es solo aspecto.
 - Corrección 0.3.2: `StatusTexture` se oculta (`Hide`) y se vuelve a ocultar con
   un post-gancho sobre `Show`/`SetShown`; el icono de espadas sigue indicando el
   combate. `/pcc` añade `glow: …`.
+- 0.3.2 (commit `d16df02`): CI en verde y `latest` actualizada. Prueba del
+  usuario (2026-11-28): al atacar con el arma ya no sale el brillo, `/pcc` sin
+  errores, "ya está todo bien". Lista de [[normas]] repasada en cada versión.
+- **Sin probar:** vehículo o montura de pasajeros (el usuario aún no tiene
+  ninguna). Si algo falla ahí, se abre una tarea nueva.
 
 ## Resultado
+
+Addon `PlayerClassColor` 0.3.2 publicado en `latest`. El marco del jugador de
+Blizzard se ve como un recuadro de banda: vida con color de clase y textura
+plana a todo el recuadro del Modo edición, franja de poder debajo, fondo y borde
+propios, nombre en blanco, retrato y adornos transparentes, brillo de estado
+oculto y destello de amenaza con forma de borde de aggro de banda. La
+continuación para otros marcos está en
+[[Estilo de banda en mascota, objetivo y objetivo del objetivo]].
 
 ## Fuentes
 
