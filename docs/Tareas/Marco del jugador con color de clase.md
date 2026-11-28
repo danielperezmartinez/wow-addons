@@ -1,8 +1,8 @@
 ---
 Nombre: Marco del jugador con color de clase
 Estado: En curso
-Resumen: Addon PlayerClassColor. Cambia solo el aspecto del marco del jugador de Blizzard: barra de vida con textura plana de banda y color de clase, y barra de poder con textura plana y su color. Diseño aprobado el 2026-11-28; implementado y pendiente de prueba en el juego.
-Decisiones: 2026-11-28. El juego no lo cubre (usuario + internet). Se descartaron el marco de banda en solitario, el cuadro propio y el marco nuevo: el usuario quiere conservar el marco de Blizzard con toda su información y cambiar solo el aspecto. Primera fase, puntos 1 y 2: vida con color de clase y poder con textura plana. Más adelante, opcional: texto de vida más claro y quitar adornos.
+Resumen: Addon PlayerClassColor. Cambia solo el aspecto del marco del jugador de Blizzard: barra de vida con textura plana de banda y color de clase, y barra de poder con textura plana y su color. Fase 1 probada en el juego. Fase 2 (aspecto de recuadro de banda: sin retrato ni marco dorado, fondo y borde propios, nombre dentro de la barra) implementada y pendiente de prueba.
+Decisiones: 2026-11-28. El juego no lo cubre (usuario + internet). Se descartaron el marco de banda en solitario, el cuadro propio y el marco nuevo: el usuario quiere conservar el marco de Blizzard con toda su información y cambiar solo el aspecto. Primera fase, puntos 1 y 2: vida con color de clase y poder con textura plana. Fase 2 aprobada el mismo día: retrato y marco dorado transparentes, fondo oscuro y borde fino propios, nombre dentro de la barra de vida, sin cambiar tamaño ni posición de las barras. Opcional después: proporción de las barras y texto de vida.
 Bloqueada: []
 Fecha de creación: 2026-11-28T00:00:00+01:00
 Última modificación: 2026-11-28T00:00:00+01:00
@@ -65,6 +65,20 @@ opciones:
 
 Normas: no lee secretos ni escribe campos en los marcos de Blizzard. Solo llama
 a métodos de las barras y usa post-ganchos seguros. Es solo aspecto.
+
+## Fase 2: recuadro de banda (aprobada el 2026-11-28)
+
+- Retrato, marco dorado, marco de poder alternativo e icono de la esquina del
+  retrato: `SetAlpha(0)`, nunca ocultos ni borrados. Se restauran en vehículo.
+  No se tocan: destello de amenaza, brillo de descanso o combate, iconos,
+  nivel ni recursos de clase.
+- Fondo oscuro y borde negro de 1 px propios (`BackdropTemplate`), anclados de
+  la esquina superior izquierda de la barra de vida a la inferior derecha de la
+  de poder, por debajo de las barras.
+- Nombre del jugador anclado a la izquierda dentro de la barra de vida
+  (gancho sobre su `SetPoint` para que Blizzard no lo devuelva).
+- No se cambia el tamaño ni la posición de las barras (posible fase 3).
+- `/pcc` añade una línea `box: …; name: …`.
 
 ## Guía de prueba en el juego
 

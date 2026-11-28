@@ -1,7 +1,7 @@
 ## Interface: 16001, 120105, 120107
 ## Title: PlayerClassColor
-## Notes: Class-coloured, flat health and power bars on Blizzard's player frame. Visual only. /pcc
+## Notes: Raid-style look for Blizzard's player frame: class-coloured flat bars, box, name inside. Visual only. /pcc
 ## Author: wow-addons
-## Version: 0.1.0
+## Version: 0.2.0
 
 PlayerClassColor.lua

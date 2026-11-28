@@ -1,13 +1,18 @@
--- PlayerClassColor: restyles Blizzard's own player frame, visual only.
+-- PlayerClassColor: restyles Blizzard's own player frame as a raid-style box, visual only.
 --   * Health bar: flat raid-frame texture tinted with the player's class colour.
 --   * Power bar: flat raid-frame texture tinted with the standard power colour.
+--   * Portrait and frame art are made transparent (never hidden or removed), and the
+--     addon draws its own dark background and thin border around both bars.
+--   * The player name is moved inside the health bar, as in raid frames.
+-- Everything else (class resources, icons, status text, threat flash) stays Blizzard's.
 -- It never reads secret values: the class and the power type are not secret, and
--- colours are constants. It only calls widget methods on the bars (no fields are
--- written on Blizzard frames) and leaves the vehicle art untouched.
+-- colours are constants. It only calls widget methods on Blizzard regions (no fields
+-- are written on Blizzard frames) and restores Blizzard's look while in a vehicle.
 -- /pcc prints a short diagnostic for the in-game test.
 
 local HEALTH_TEXTURE = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill"
 local POWER_TEXTURE = "Interface\\RaidFrame\\Raid-Bar-Resource-Fill"
+local WHITE = "Interface\\Buttons\\WHITE8x8"
 
 local function p(msg) print("|cff66ccffPlayerClassColor|r " .. tostring(msg)) end
 
@@ -16,7 +21,7 @@ local function isSecret(v)
 end
 
 ----------------------------------------------------------------------------------------
--- Locating Blizzard's bars (names differ between client versions)
+-- Locating Blizzard's pieces (names differ between client versions)
 ----------------------------------------------------------------------------------------
 local function contentMain()
   local content = PlayerFrame and PlayerFrame.PlayerFrameContent
@@ -48,6 +53,26 @@ local function getPowerBar()
   return nil, "not found"
 end
 
+local function getName()
+  return (PlayerFrame and PlayerFrame.name) or PlayerName
+end
+
+-- Decorative regions made transparent in the player art. Information (threat flash,
+-- rest/combat glow, icons, level, class resources) is deliberately left alone.
+local function decorations()
+  local list = {}
+  local container = PlayerFrame and PlayerFrame.PlayerFrameContainer
+  if container then
+    list[#list + 1] = container.FrameTexture
+    list[#list + 1] = container.AlternatePowerFrameTexture
+    list[#list + 1] = container.PlayerPortrait
+  end
+  local content = PlayerFrame and PlayerFrame.PlayerFrameContent
+  local contextual = content and content.PlayerFrameContentContextual
+  if contextual then list[#list + 1] = contextual.PlayerPortraitCornerIcon end
+  return list
+end
+
 ----------------------------------------------------------------------------------------
 -- Colours
 ----------------------------------------------------------------------------------------
@@ -75,7 +100,7 @@ end
 -- Applying the style
 ----------------------------------------------------------------------------------------
 local applying = false   -- guards against our own calls re-triggering the hooks
-local state = { health = "not applied", power = "not applied" }
+local state = { health = "not applied", power = "not applied", box = "not applied", name = "not applied" }
 
 local function inVehicle()
   return type(UnitHasVehiclePlayerFrameUI) == "function" and UnitHasVehiclePlayerFrameUI("player")
@@ -108,9 +133,54 @@ local function applyPower()
   state.power = "applied"
 end
 
+-- Own background + border, drawn behind both bars. Created once, never touches Blizzard.
+local box
+local function getBox(health)
+  if box then return box end
+  box = CreateFrame("Frame", nil, health:GetParent(), "BackdropTemplate")
+  box:SetBackdrop({ bgFile = WHITE, edgeFile = WHITE, edgeSize = 1 })
+  box:SetBackdropColor(0.08, 0.08, 0.08, 0.85)
+  box:SetBackdropBorderColor(0, 0, 0, 1)
+  return box
+end
+
+local function applyBox()
+  local health, power = getHealthBar(), getPowerBar()
+  local regions = decorations()
+  if inVehicle() then
+    for _, region in ipairs(regions) do region:SetAlpha(1) end
+    if box then box:Hide() end
+    state.box = "skipped (vehicle)"
+    return
+  end
+  for _, region in ipairs(regions) do region:SetAlpha(0) end
+  if not health then state.box = "bar not found"; return end
+  local b = getBox(health)
+  b:ClearAllPoints()
+  b:SetPoint("TOPLEFT", health, "TOPLEFT", -1, 1)
+  b:SetPoint("BOTTOMRIGHT", power or health, "BOTTOMRIGHT", 1, -1)
+  b:SetFrameLevel(math.max(health:GetFrameLevel() - 1, 0))
+  b:Show()
+  state.box = "applied, " .. #regions .. " decorations transparent"
+end
+
+local function applyName()
+  local name, health = getName(), getHealthBar()
+  if not name or not health then state.name = "not found"; return end
+  if inVehicle() then state.name = "skipped (vehicle)"; return end
+  applying = true
+  name:ClearAllPoints()
+  name:SetPoint("LEFT", health, "LEFT", 4, 0)
+  name:SetJustifyH("LEFT")
+  applying = false
+  state.name = "applied"
+end
+
 local function applyAll()
   applyHealth()
   applyPower()
+  applyBox()
+  applyName()
 end
 
 ----------------------------------------------------------------------------------------
@@ -118,11 +188,10 @@ end
 ----------------------------------------------------------------------------------------
 local hooked = {}
 
-local function hookBar(bar, key, apply)
-  if not bar or hooked[key] then return end
+local function hookMethods(obj, key, methods, apply)
+  if not obj or hooked[key] then return end
   local function reapply() if not applying then apply() end end
-  hooksecurefunc(bar, "SetStatusBarTexture", reapply)
-  hooksecurefunc(bar, "SetStatusBarColor", reapply)
+  for _, method in ipairs(methods) do hooksecurefunc(obj, method, reapply) end
   hooked[key] = true
 end
 
@@ -133,9 +202,12 @@ local function hookGlobal(name, fn)
 end
 
 local function installHooks()
-  hookBar(getHealthBar(), "healthBar", applyHealth)
-  hookBar(getPowerBar(), "powerBar", applyPower)
+  local barMethods = { "SetStatusBarTexture", "SetStatusBarColor" }
+  hookMethods(getHealthBar(), "healthBar", barMethods, applyHealth)
+  hookMethods(getPowerBar(), "powerBar", barMethods, applyPower)
+  hookMethods(getName(), "name", { "SetPoint" }, applyName)
   hookGlobal("PlayerFrame_ToPlayerArt", applyAll)
+  hookGlobal("PlayerFrame_ToVehicleArt", applyAll)
   hookGlobal("PlayerFrame_UpdateArt", applyAll)
   hookGlobal("UnitFrameManaBar_UpdateType", function(bar)
     if bar == getPowerBar() then applyPower() end
@@ -164,6 +236,7 @@ SlashCmdList.PLAYERCLASSCOLOR = function()
   local _, powerPath = getPowerBar()
   p("health bar: " .. healthPath .. " -> " .. state.health)
   p("power bar: " .. powerPath .. " -> " .. state.power)
+  p("box: " .. state.box .. "; name: " .. state.name)
   local names = {}
   for k in pairs(hooked) do names[#names + 1] = k end
   table.sort(names)
