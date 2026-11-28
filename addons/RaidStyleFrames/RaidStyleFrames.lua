@@ -197,7 +197,7 @@ local skins = {
     color = function() return unitColor("target") end,
   },
   {
-    key = "tot", unit = "targettarget", powerHeight = 5,
+    key = "tot", unit = "targettarget", powerHeight = 5, raiseName = true,
     frame = totFrame,
     health = function() return first(path(totFrame(), "healthbar"), path(totFrame(), "HealthBar")) end,
     power = function() return first(path(totFrame(), "manabar"), path(totFrame(), "ManaBar")) end,
@@ -461,8 +461,22 @@ local function applyName(skin)
   name:SetTextColor(1, 1, 1)
   name:SetShadowColor(0, 0, 0, 1)
   name:SetShadowOffset(1, -1)
-  applying = false
   s.name = "ok"
+  -- Target of target: its name belongs to the frame itself, one level below the health
+  -- bar, so the enlarged bar covers it. Only there, and only out of combat, the name is
+  -- moved onto the bar (Blizzard keeps setting its text).
+  local parent = name:GetParent()
+  if skin.raiseName and parent and parent ~= health
+      and parent:GetFrameLevel() <= health:GetFrameLevel() then
+    if InCombatLockdown() then
+      rt[skin].pending = true
+      s.name = "covered (deferred)"
+    else
+      name:SetParent(health)
+      s.name = "ok (moved onto bar)"
+    end
+  end
+  applying = false
 end
 
 local function applySkin(skin)
@@ -570,7 +584,7 @@ f:SetScript("OnEvent", function(_, event)
     applyAll()
   elseif event == "PLAYER_REGEN_ENABLED" then
     for _, skin in ipairs(skins) do
-      if rt[skin].pending then applyLayout(skin); applyBox(skin) end
+      if rt[skin].pending then applyLayout(skin); applyBox(skin); applyName(skin) end
     end
   elseif event == "PLAYER_TARGET_CHANGED" or event == "UNIT_TARGET" or event == "UNIT_FACTION" then
     recolorTargets()

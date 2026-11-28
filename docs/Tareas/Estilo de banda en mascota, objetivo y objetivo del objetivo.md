@@ -146,6 +146,18 @@ deciden el color del objetivo.
   a todo el recuadro; el retrato del objetivo ya no se ve. Detalle pendiente:
   el nombre del objetivo del objetivo no se ve aunque `/rsf` lo da por colocado.
   Sin probar: mazmorra (posibles secretos) y vehículo.
+- 0.4.4: el nombre del objetivo del objetivo pertenece al propio marco, un
+  nivel por debajo de su barra de vida, y la barra ampliada lo tapa (en los
+  demás marcos el nombre está en un marco de contenido por encima de las
+  barras). Solo en ese marco (`raiseName`), si el padre del nombre no está por
+  encima de la barra, el nombre pasa a ser hijo de la barra con `SetParent`,
+  únicamente fuera de combate (en combate se aplaza). Blizzard sigue poniendo el
+  texto. Simulación local sin errores.
+- Aclaración al usuario: no hay dos marcos de objetivo del objetivo. El que sale
+  con aspecto original en el Modo edición es el **marco de foco** (que Blizzard
+  muestra siempre en ese modo). El objetivo del objetivo no es un sistema del
+  Modo edición: va pegado al marco del objetivo y solo se activa o desactiva
+  desde los ajustes de este.
 
 ## Resultado
 
