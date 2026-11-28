@@ -50,6 +50,10 @@ existen también `WOW_PROJECT_MAINLINE = 1` y `WOW_PROJECT_CLASSIC = 2`). Palad�
   `UnitPowerType` del objetivo tampoco. Sin probar en mazmorra ni en PvP.
 - Las barras de `TargetFrame` y `TargetFrameToT` (`.healthbar`/`.manabar`) aceptan textura, color y nueva colocación
   con post-ganchos, sin errores en combate. `TargetFrame.Selection` existe; el marco del objetivo del objetivo no tiene.
+- **El tamaño del relleno de una barra con valor secreto es secreto** (`StatusBar:GetStatusBarTexture():GetWidth()` en
+  combate: "attempt to perform arithmetic on a secret number value", RaidStyleFrames 0.4.1, 2026-11-28). Medirlo es
+  además una vía para deducir el valor: **no se mide** ([[normas]], apartado 3). El tamaño del marco de la barra sí
+  se puede leer, pero los diagnósticos lo protegen con `issecretvalue`.
 - `C_RestrictedActions` no existe; `C_Secrets.GetSpellAuraSecrecy/GetSpellCooldownSecrecy` sí (sin probar).
 
 ---

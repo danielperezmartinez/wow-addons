@@ -115,6 +115,18 @@ deciden el color del objetivo.
   (`TargetFrameContainer.Portrait` y `TargetFrame.portrait`), y `/rsf` añade una
   línea `size` por marco (tamaño de barra, relleno y nombre, y si
   `PetFrame.healthbar` es `PetFrameHealthBar`) para diagnosticar la mascota.
+- CI del commit `a357b85` (0.4.1): Verificar, Fugas y Publicar en verde.
+- Prueba en el juego del usuario, 0.4.1 (2026-11-28, en combate): `/rsf` dio
+  un error de Lua: la línea `size` medía el relleno de la barra de vida, cuyo
+  ancho es secreto en combate. Fallo del diagnóstico, no del estilo. Medir el
+  relleno se acerca a lo que prohíbe [[normas]] (apartado 3), así que se quita,
+  no solo se protege. El retrato del objetivo sigue visible (ninguna de las dos
+  piezas candidatas es la que se ve) y la mascota sigue con barras pequeñas.
+- 0.4.2: `size` solo mide el marco de las barras (protegido con
+  `issecretvalue`); nuevo `/rsf scan <marco>` que lista por nombre y atlas las
+  texturas y barras visibles de un marco, sin medir nada, para identificar el
+  retrato real y las barras de la mascota. Simulación local con todo secreto
+  en combate, sin errores.
 
 ## Resultado
 

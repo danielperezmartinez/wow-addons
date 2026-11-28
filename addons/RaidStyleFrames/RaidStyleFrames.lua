@@ -16,7 +16,8 @@
 -- on Blizzard frames). Layout changes happen only out of combat (deferred to
 -- PLAYER_REGEN_ENABLED); colours may change in combat. In a vehicle the player frame
 -- gets Blizzard's look and layout back.
--- /rsf (or /pcc) prints a short diagnostic for in-game tests.
+-- /rsf (or /pcc) prints a short diagnostic for in-game tests; /rsf scan <frame> lists the
+-- visible pieces of a frame by name.
 
 local HEALTH_TEXTURE = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill"
 local POWER_TEXTURE = "Interface\\RaidFrame\\Raid-Bar-Resource-Fill"
@@ -552,25 +553,80 @@ end)
 ----------------------------------------------------------------------------------------
 -- /rsf diagnostic (also /pcc, the old command)
 ----------------------------------------------------------------------------------------
+-- Diagnostics never measure a bar's fill: its size follows the (secret) value, and
+-- deducing secrets from widget sizes is forbidden (docs/normas.md, section 3).
 local function size(region)
   if not region then return "-" end
-  return math.floor((region:GetWidth() or 0) + 0.5) .. "x" .. math.floor((region:GetHeight() or 0) + 0.5)
+  local w, h = region:GetWidth(), region:GetHeight()
+  if isSecret(w) or isSecret(h) then return "secret" end
+  return math.floor((w or 0) + 0.5) .. "x" .. math.floor((h or 0) + 0.5)
 end
 
--- Bar and fill sizes, to spot a bar that did not follow the new layout.
+-- Frame sizes of the bars (not their fill), to spot a bar that did not follow the layout.
 local function sizeInfo(skin)
   local health, power, name = skin.health(), skin.power(), skin.name()
-  local text = "hp " .. size(health) .. " fill " .. size(health and health:GetStatusBarTexture())
-    .. "; mp " .. size(power) .. "; name " .. size(name) .. (name and name:IsShown() and "" or " hidden")
+  local text = "hp " .. size(health) .. "; mp " .. size(power) .. "; name " .. size(name)
   if skin.key == "pet" then
     text = text .. "; same bar " .. tostring(path(PetFrame, "healthbar") == PetFrameHealthBar)
   end
   return text
 end
 
+-- /rsf scan <frame>: lists the visible textures and status bars of a frame by name and
+-- atlas, to find the right pieces. Reads names only; no sizes, values or colours.
+local MAX_SCAN_LINES = 30
+
+local function shortName(region, root)
+  local name = debugName(region)
+  local rootName = debugName(root)
+  if name:sub(1, #rootName) == rootName then name = name:sub(#rootName + 2) end
+  return name ~= "" and name or "?"
+end
+
+local function scan(skin)
+  local root = skin.frame()
+  if not root then p("scan " .. skin.key .. ": frame not found"); return end
+  local own = rt[skin].box
+  local lines, seen = 0, {}
+  local function describe(region)
+    local kind = region:GetObjectType()
+    local extra = ""
+    if kind == "Texture" then
+      local atlas = region.GetAtlas and region:GetAtlas()
+      if atlas and not isSecret(atlas) then extra = " atlas=" .. atlas end
+    end
+    return shortName(region, root) .. " [" .. kind .. "]" .. extra
+  end
+  local function visit(frame, depth)
+    if not frame or seen[frame] or frame == own or depth > 8 or lines >= MAX_SCAN_LINES then return end
+    seen[frame] = true
+    if frame:GetObjectType() == "StatusBar" and frame:IsVisible() then
+      lines = lines + 1
+      p("  " .. describe(frame))
+    end
+    for _, region in ipairs({ frame:GetRegions() }) do
+      if lines >= MAX_SCAN_LINES then break end
+      local alpha = region:GetAlpha()
+      if region:GetObjectType() == "Texture" and region:IsVisible() and (isSecret(alpha) or alpha > 0) then
+        lines = lines + 1
+        p("  " .. describe(region))
+      end
+    end
+    for _, child in ipairs({ frame:GetChildren() }) do visit(child, depth + 1) end
+  end
+  p("scan " .. skin.key .. " (visible pieces, max " .. MAX_SCAN_LINES .. "):")
+  visit(root, 0)
+end
+
 SLASH_RAIDSTYLEFRAMES1 = "/rsf"
 SLASH_RAIDSTYLEFRAMES2 = "/pcc"
-SlashCmdList.RAIDSTYLEFRAMES = function()
+SlashCmdList.RAIDSTYLEFRAMES = function(msg)
+  local cmd, arg = (msg or ""):match("^(%S*)%s*(%S*)")
+  if cmd == "scan" then
+    local skin = skinOf(arg ~= "" and arg or "target")
+    if skin then scan(skin) else p("usage: /rsf scan player|pet|target|tot") end
+    return
+  end
   applyAll()
   for _, skin in ipairs(skins) do
     local s = rt[skin].state
