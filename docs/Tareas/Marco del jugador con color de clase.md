@@ -158,6 +158,17 @@ a métodos de las barras y usa post-ganchos seguros. Es solo aspecto.
   del borde de aggro de los marcos de banda
   (`Interface\RaidFrame\Raid-FrameHighlights`, mismas coordenadas que
   `CompactUnitFrame`) alrededor del recuadro.
+- CI del commit `06da978` (0.3.1): Verificar, Fugas y Publicar en verde;
+  `latest` actualizada (2026-11-28).
+- Prueba en el juego del usuario, 0.3.1 (2026-11-28): "mucho mejor". El recuadro
+  cabe en el del Modo edición; `/pcc`: `Edit Mode selection`, `flash reshaped`.
+  El borde de amenaza sale bien al recibir golpes. Al **atacar con el arma**
+  reaparecen un círculo rojo en el retrato y una línea horizontal: es
+  `StatusTexture`, que Blizzard hace latir cambiando su alfa en cada fotograma
+  durante el autoataque, lo que pisa nuestro `SetAlpha(0)`.
+- Corrección 0.3.2: `StatusTexture` se oculta (`Hide`) y se vuelve a ocultar con
+  un post-gancho sobre `Show`/`SetShown`; el icono de espadas sigue indicando el
+  combate. `/pcc` añade `glow: …`.
 
 ## Resultado
 

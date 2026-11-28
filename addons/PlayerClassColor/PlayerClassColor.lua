@@ -3,8 +3,9 @@
 --   * Power bar: flat raid-frame texture tinted with the standard power colour.
 --   * Both bars are enlarged to fill the player frame (health on top, a thin power strip
 --     below), and their clipping masks are made rectangular.
---   * Portrait, frame art and the status glow are made transparent (never hidden or
---     removed), and the addon draws its own dark background and thin border.
+--   * Portrait and frame art are made transparent (never removed), the status glow is
+--     hidden, and the addon draws its own dark background and thin border.
+--   * Blizzard's threat flash keeps its logic but takes the raid aggro-border shape.
 --   * The player name sits inside the health bar, in white, as in raid frames.
 -- Everything else (class resources, icons, status text, threat flash) stays Blizzard's.
 -- It never reads secret values: the class and the power type are not secret, and
@@ -97,6 +98,14 @@ local function getFlash()
   return container and container.FrameFlash
 end
 
+-- Combat/rest glow around the old portrait. Blizzard pulses its alpha every frame while
+-- auto-attacking, so it is hidden (re-hidden whenever Blizzard shows it) instead of made
+-- transparent. The combat swords icon still shows the same state.
+local function getStatusGlow()
+  local main = contentMain()
+  return main and main.StatusTexture
+end
+
 local function decorations()
   local list = {}
   local container = PlayerFrame and PlayerFrame.PlayerFrameContainer
@@ -108,8 +117,6 @@ local function decorations()
   local content = PlayerFrame and PlayerFrame.PlayerFrameContent
   local contextual = content and content.PlayerFrameContentContextual
   if contextual then list[#list + 1] = contextual.PlayerPortraitCornerIcon end
-  local main = contentMain()
-  if main then list[#list + 1] = main.StatusTexture end
   return list
 end
 
@@ -184,7 +191,7 @@ local pendingLayout = false
 local layoutApplied = false  -- our layout is on the bars (so a vehicle must restore it once)
 local state = {
   health = "not applied", power = "not applied", box = "not applied",
-  name = "not applied", layout = "not applied",
+  name = "not applied", layout = "not applied", glow = "not applied",
 }
 
 local function inVehicle()
@@ -316,6 +323,16 @@ local function applyBox()
   state.box = "applied, " .. #regions .. " decorations transparent"
 end
 
+local function applyGlow()
+  local glow = getStatusGlow()
+  if not glow then state.glow = "not found"; return end
+  if inVehicle() then state.glow = "skipped (vehicle)"; return end
+  applying = true
+  glow:Hide()
+  applying = false
+  state.glow = "hidden"
+end
+
 local function applyName()
   local name, health = getName(), getHealthBar()
   if not name or not health then state.name = "not found"; return end
@@ -336,6 +353,7 @@ local function applyAll()
   applyPower()
   applyLayout()
   applyBox()
+  applyGlow()
   applyName()
 end
 
@@ -366,6 +384,7 @@ local function installHooks()
   hookMethods(getHealthContainer(health), "containerLayout", { "SetPoint" }, applyLayout)
   hookMethods(power, "powerLayout", { "SetPoint" }, applyLayout)
   hookMethods(getFlash(), "flash", { "SetAtlas", "SetTexture", "SetPoint" }, applyLayout)
+  hookMethods(getStatusGlow(), "glow", { "Show", "SetShown" }, applyGlow)
   hookMethods(getName(), "name", { "SetPoint", "SetTextColor" }, applyName)
   hookGlobal("PlayerFrame_ToPlayerArt", applyAll)
   hookGlobal("PlayerFrame_ToVehicleArt", applyAll)
@@ -403,7 +422,7 @@ SlashCmdList.PLAYERCLASSCOLOR = function()
   p("health bar: " .. healthPath .. " -> " .. state.health)
   p("power bar: " .. powerPath .. " -> " .. state.power)
   p("layout: " .. state.layout)
-  p("box: " .. state.box .. "; name: " .. state.name)
+  p("box: " .. state.box .. "; name: " .. state.name .. "; glow: " .. state.glow)
   local names = {}
   for k in pairs(hooked) do names[#names + 1] = k end
   table.sort(names)
