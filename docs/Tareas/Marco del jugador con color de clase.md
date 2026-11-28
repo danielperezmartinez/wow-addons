@@ -117,6 +117,16 @@ a métodos de las barras y usa post-ganchos seguros. Es solo aspecto.
   tiene montura de pasajeros). El usuario notó que "parte del marco ha
   desaparecido": por aclarar. Valoración: "se ve más limpio, pero aún falta que
   se vea como un recuadro de banda".
+- CI del commit `e1b3d7f` (0.2.0): Verificar, Fugas y Publicar en verde;
+  `latest` actualizada (2026-11-28).
+- Prueba en el juego del usuario, fase 2 (2026-11-28, capturas fuera del repo):
+  `/pcc` aplicó todo (4 adornos transparentes, nombre movido, 8 ganchos,
+  incluido `PlayerFrame_ToVehicleArt`). Sin errores en combate; se mantiene tras
+  `/reload`. Problemas: el fondo oscuro propio **tapa la barra de vida** (no se
+  ve el color de clase; el maná sí); el recuadro ocupa solo una parte del área
+  del marco (en el Modo edición se ve el límite completo); en combate el brillo
+  rojo de estado (`StatusTexture`) dibuja la silueta del marco antiguo. El
+  usuario pide que las barras ocupen todo el espacio del marco (fase 3).
 
 ## Resultado
 
