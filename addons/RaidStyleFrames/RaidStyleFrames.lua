@@ -188,7 +188,7 @@ local skins = {
     bounds = function() return first(path(TargetFrame, "Selection"), TargetFrame) end,
     decorations = function()
       local c = path(TargetFrame, "TargetFrameContainer")
-      return { path(c, "FrameTexture"), first(path(c, "Portrait"), path(TargetFrame, "portrait")),
+      return { path(c, "FrameTexture"), path(c, "Portrait"), path(TargetFrame, "portrait"),
         path(targetMain(), "ReputationColor") }
     end,
     flash = function() return path(TargetFrame, "TargetFrameContainer", "Flash") end,
@@ -552,6 +552,22 @@ end)
 ----------------------------------------------------------------------------------------
 -- /rsf diagnostic (also /pcc, the old command)
 ----------------------------------------------------------------------------------------
+local function size(region)
+  if not region then return "-" end
+  return math.floor((region:GetWidth() or 0) + 0.5) .. "x" .. math.floor((region:GetHeight() or 0) + 0.5)
+end
+
+-- Bar and fill sizes, to spot a bar that did not follow the new layout.
+local function sizeInfo(skin)
+  local health, power, name = skin.health(), skin.power(), skin.name()
+  local text = "hp " .. size(health) .. " fill " .. size(health and health:GetStatusBarTexture())
+    .. "; mp " .. size(power) .. "; name " .. size(name) .. (name and name:IsShown() and "" or " hidden")
+  if skin.key == "pet" then
+    text = text .. "; same bar " .. tostring(path(PetFrame, "healthbar") == PetFrameHealthBar)
+  end
+  return text
+end
+
 SLASH_RAIDSTYLEFRAMES1 = "/rsf"
 SLASH_RAIDSTYLEFRAMES2 = "/pcc"
 SlashCmdList.RAIDSTYLEFRAMES = function()
@@ -560,6 +576,7 @@ SlashCmdList.RAIDSTYLEFRAMES = function()
     local s = rt[skin].state
     p(skin.key .. ": colour " .. s.health .. "; power " .. s.power .. "; name " .. s.name)
     p("   layout " .. s.layout .. "; box " .. s.box .. "; glow " .. s.glow)
+    p("   size " .. sizeInfo(skin))
   end
   p("hooks: " .. hookCount .. (InCombatLockdown() and " (in combat)" or ""))
 end

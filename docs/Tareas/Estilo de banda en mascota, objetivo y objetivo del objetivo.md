@@ -100,7 +100,21 @@ deciden el color del objetivo.
   legible y con todo secreto en combate, sin errores de Lua; la colocación se
   aplaza y se aplica al salir de combate.
 - Lista de comprobación de [[normas]]: repasada (2026-11-28).
-- Pendiente: CI y prueba en el juego.
+- CI del commit `87f7bcf` (0.4.0): Verificar, Fugas y Publicar en verde;
+  `latest` trae `RaidStyleFrames.zip` y ya no `PlayerClassColor.zip`.
+- Prueba en el juego del usuario, 0.4.0 (2026-11-28, mundo abierto): colores
+  del objetivo correctos, clase (objetivo propio) y reacción (monstruo), también
+  en combate, sin secretos. Jugador y objetivo caben en su recuadro del Modo
+  edición; el borde de amenaza sale en los dos. El objetivo del objetivo sale
+  solo cuando el objetivo tiene objetivo (en combate), con el color de clase
+  correcto. El marco de la derecha en el Modo edición es el de **foco**, sin
+  estilo. Fallos: el retrato del objetivo sigue visible; las barras de la
+  mascota conservan su tamaño original dentro de un recuadro grande; el nombre
+  del objetivo del objetivo no se ve.
+- 0.4.1: se ocultan las dos piezas candidatas del retrato del objetivo
+  (`TargetFrameContainer.Portrait` y `TargetFrame.portrait`), y `/rsf` añade una
+  línea `size` por marco (tamaño de barra, relleno y nombre, y si
+  `PetFrame.healthbar` es `PetFrameHealthBar`) para diagnosticar la mascota.
 
 ## Resultado
 

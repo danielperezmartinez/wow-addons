@@ -45,6 +45,11 @@ existen también `WOW_PROJECT_MAINLINE = 1` y `WOW_PROJECT_CLASSIC = 2`). Palad�
   `PlayerFrame_ToPlayerArt`, `PlayerFrame_UpdateArt` y `UnitFrameManaBar_UpdateType`. Cambiar textura y color de esas
   barras (`SetStatusBarTexture`/`SetStatusBarColor`) con post-ganchos `hooksecurefunc` funciona también en combate,
   sin errores de *taint*. `UnitClass("player")` y `C_ClassColor` se leen sin problema.
+- **Unidades ajenas** (RaidStyleFrames 0.4.0, 2026-11-28, mundo abierto, en combate contra un monstruo):
+  `UnitIsPlayer`, `UnitClass` y `UnitReaction` del objetivo y del objetivo del objetivo **no son secretos**;
+  `UnitPowerType` del objetivo tampoco. Sin probar en mazmorra ni en PvP.
+- Las barras de `TargetFrame` y `TargetFrameToT` (`.healthbar`/`.manabar`) aceptan textura, color y nueva colocación
+  con post-ganchos, sin errores en combate. `TargetFrame.Selection` existe; el marco del objetivo del objetivo no tiene.
 - `C_RestrictedActions` no existe; `C_Secrets.GetSpellAuraSecrecy/GetSpellCooldownSecrecy` sí (sin probar).
 
 ---
