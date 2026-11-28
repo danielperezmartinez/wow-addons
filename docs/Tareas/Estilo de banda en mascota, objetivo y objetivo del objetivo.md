@@ -139,6 +139,13 @@ deciden el color del objetivo.
   (`GetNumMaskTextures`/`GetMaskTexture`), además de las de nombre conocido;
   adornos vigilados con post-ganchos sobre `SetAlpha`/`Show`/`SetShown`; el
   escaneo salta las piezas con visibilidad secreta y lo indica.
+- CI del commit `65f9ffd` (0.4.3): Verificar, Fugas y Publicar en verde.
+- Prueba en el juego del usuario, 0.4.3 (2026-11-28, mundo abierto, fuera y
+  dentro de combate): "ya parece que se ven bien y no hay errores". Los cuatro
+  marcos salen como recuadros de banda; la mascota ya tiene 2 máscaras y barras
+  a todo el recuadro; el retrato del objetivo ya no se ve. Detalle pendiente:
+  el nombre del objetivo del objetivo no se ve aunque `/rsf` lo da por colocado.
+  Sin probar: mazmorra (posibles secretos) y vehículo.
 
 ## Resultado
 
